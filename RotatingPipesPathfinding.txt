@@ -1,0 +1,151 @@
+//note: borders are at:
+//	|x| == 9
+//	|y| == 5
+
+
+// NOTE: For each cell check, first check that there is no leak, THEN, if the cell has not been checked, add it to the checkedCells list and recurse. Otherwise, just return and recurse upon another branch.
+
+
+private enum Direction
+{
+	right,
+	left,
+	up,
+	down
+}
+
+List<Tuple<int,int>> checkedCells = new List<Tuple<int,int>>();
+bool foundLeak = false;
+bool pathToEnd = false;
+
+
+bool IsPathValid(Tuple<int, int> currentCell, Tuple<int, int> previousCell, )
+{
+	Direction direction;
+	
+	if (previousCell.X < currentCell.X) direction = right;
+	else if (previousCell.X > currentCell.X) direction = left;
+	else if (previousCell.Y < currentCell.Y) direction = up;
+	else if (previousCell.Y > currentCell.Y) direction = down;
+	else throw new Exception("Invalid path! currentCell is not adjacent to previousCell!");
+	
+	
+}
+
+
+
+
+public class Cell 
+{
+	public PipeType TypeOfPipe { get; }
+	public int Rotation { get; }
+	public IsLeftOpen {
+		get {
+			switch (TypeOfPipe){
+				case "BendPipe":
+					return (rotation == 0 || rotation == 90);
+				case "CrossPipe":
+					return true;
+				case "ClosedDeadEnd":
+				case "OpenDeadEnd":
+				case "UndergroundPipe":
+					return rotaion == 0;
+				case "Dirt":
+					return false;
+				case "StraightPipe":
+					return (rotation == 0 || rotation == 180);
+				case "T Pipe":
+					return rotation != 180;
+				default:
+					throw new Exception("TypeOfPipe is invalid.");
+			}
+		}
+	}
+	
+	public IsRightOpen {
+		get {
+			switch (TypeOfPipe){
+				case "BendPipe":
+					return (rotation == 180 || rotation == 270);
+				case "CrossPipe":
+					return true;
+				case "ClosedDeadEnd":
+				case "OpenDeadEnd":
+				case "UndergroundPipe":
+					return rotaion == 180;
+				case "Dirt":
+					return false;
+				case "StraightPipe":
+					return (rotation == 0 || rotation == 180);
+				case "T Pipe":
+					return rotation != 0;
+				default:
+					throw new Exception("TypeOfPipe is invalid.");
+			}
+		}
+	}
+	
+	public IsTopOpen {
+		get {
+			switch (TypeOfPipe){
+				case "BendPipe":
+					return (rotation == 0 || rotation == 270);
+				case "CrossPipe":
+					return true;
+				case "ClosedDeadEnd":
+				case "OpenDeadEnd":
+				case "UndergroundPipe":
+					return rotaion == 270;
+				case "Dirt":
+					return false;
+				case "StraightPipe":
+					return (rotation == 90 || rotation == 270);
+				case "T Pipe":
+					return rotation != 90;
+				default:
+					throw new Exception("TypeOfPipe is invalid.");
+			}
+		}
+	}
+	
+	public IsBottomOpen {
+		get {
+			switch (TypeOfPipe){
+				case "BendPipe":
+					return (rotation == 90 || rotation == 180);
+				case "CrossPipe":
+					return true;
+				case "ClosedDeadEnd":
+				case "OpenDeadEnd":
+				case "UndergroundPipe":
+					return rotaion == 90;
+				case "Dirt":
+					return false;
+				case "StraightPipe":
+					return (rotation == 90 || rotation == 270);
+				case "T Pipe":
+					return rotation != 270;
+				default:
+					throw new Exception("TypeOfPipe is invalid.");
+			}
+		}
+	}
+}
+
+public Direction GetOppositeDirection(Direction d)
+{
+	switch(d)
+	{
+		case Direction.top:
+			return Direction.bottom;
+		case Direction.left:
+			return Direction.right;
+		case Direction.bottom:
+			return Direction.top;
+		case Direction.right:
+			return Direction.left;
+		default:
+			throw new System.Exception();
+	}
+}
+
