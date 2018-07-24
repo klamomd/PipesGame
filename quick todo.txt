@@ -1,0 +1,4 @@
+Quick TODO:
+
+- Most important to gameplay right now is the fact that there is no proper solution-checking. Instead I have a single hard-coded solution for each level just as a stand-in. Need to flesh out an algorithm to check that there is a path from start to finish, and that the entirety of the path has no leaks (a leak being that an open end of a pipe does not face the open end of another pipe).
+- Also, for future level development, it would be nice to create a level-generator instead of fleshing them out by hand.

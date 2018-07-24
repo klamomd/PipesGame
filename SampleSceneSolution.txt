@@ -1,0 +1,8 @@
+XXXXXXXXXXXXXX
+X B=T=B      X
+==T=+=+T=B   X
+X   B=TB BB  X
+X         BB X
+X		   =B=
+X          BBX
+XXXXXXXXXXXXXX
