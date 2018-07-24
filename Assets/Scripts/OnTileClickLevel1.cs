@@ -6,12 +6,10 @@ using UnityEngine.UI;
 
 public class OnTileClickLevel1 : MonoBehaviour {
 
-    //public ITilemap world;
-    //public Tilemap extWorld;
     public Tilemap map;
-    public AudioSource snapSound1;
-    public AudioSource snapSound2;
-    public AudioSource successSound;
+    public AudioSource snapSound1,
+                       snapSound2,
+                       successSound;
     public Text levelFinishedText1,
                 levelFinishedText2,
                 levelFinishedText3;
@@ -21,9 +19,8 @@ public class OnTileClickLevel1 : MonoBehaviour {
                startPipeY,
                endPipeX,
                endPipeY;
-    public bool levelOver = false;
-    public bool playedSuccess = false;
-    public bool fadingText = false;
+    public bool levelOver = false,
+                fadingText = false;
     const float period = 4.0f;
 
     private enum TileType
@@ -40,6 +37,7 @@ public class OnTileClickLevel1 : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
+        // Make the "Level Finished" text and Continue button invisible.
         Color colorOfObject1 = levelFinishedText1.color;
         colorOfObject1.a = 0;
         levelFinishedText1.color = colorOfObject1;
@@ -58,6 +56,7 @@ public class OnTileClickLevel1 : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
+        // If fading text in, increase the opacity of the "Level Finished" text and make the Continue button visible.
         if (fadingText)
         {
             float prop = (Time.time / period);
@@ -93,44 +92,13 @@ public class OnTileClickLevel1 : MonoBehaviour {
         }
 
 
-
+        // Only rotate if the level is not over and the user has left- or right-clicked.
         if (!levelOver && rotate)
         {
             Vector3 mouseVec3 = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Debug.Log(string.Format("Co-ords of mouse is [X: {0} Y: {1} Z:{2}]", mouseVec3.x, mouseVec3.y, mouseVec3.z));
-            //mouseVec3.z = 0;
 
-
-
-
-            /**
-             * 
-             *  BIG TODO:
-             *  - Adjustment is OFF
-             *  LEAVING OFF:
-             *  - Can find actual tile with (floor + ceil) / 2 BUT!!:
-             *  - VECTOR MUST BE IN INT! How to use that half point?
-             * 
-             * 
-             ****/
-
-
-            //// Adjust X and Y for scale of tiles (128 px = 1.28 scale)
-            //int adjustedX = (int)(mouseVec3.x / 1.28) - 1;
-            //int adjustedY = (int)(mouseVec3.y / 1.28);
-
-            //int adjustedX = 0;
-            //int adjustedY = 0;
-
-            //if (mouseVec3.x < 0)
-            //{
-            //    adjustedX = Mathf.FloorToInt(mouseVec3.x);
-            //}
-            //else
-            //{
-            //    adjustedX = Mathf.CeilToInt(mouseVec3.x);
-            //}
-
+            // Use mouse coordinates to determine which tile the user clicked on.
             int adjustedX = (int)mouseVec3.x;
             int adjustedY = (int)mouseVec3.y;
             int adjustedZ = (int)mouseVec3.z;
@@ -138,7 +106,7 @@ public class OnTileClickLevel1 : MonoBehaviour {
             adjustedX = Mathf.FloorToInt(mouseVec3.x);
             adjustedY = Mathf.FloorToInt(mouseVec3.y);
 
-            // Skip border tiles
+            // Only continue with rotating the tile if it is not a border tile (or beyond). A tile is on the border when |tile.x| == 9 and/or |tile.y| == 5.
             if (adjustedX > -9 && adjustedX < 9 && adjustedY < 5 && adjustedY > -5)
             {
                 Debug.Log(string.Format("Adjusted co-ords of mouse is [X: {0} Y: {1} Z: {2}]", adjustedX, adjustedY, adjustedZ));
@@ -149,22 +117,12 @@ public class OnTileClickLevel1 : MonoBehaviour {
                 var transformMatrix = map.GetTransformMatrix(tileMousePos);
                 Quaternion rotation = transformMatrix.rotation;
 
-                // TODO: Remove useless angles?
-                float ex = rotation.eulerAngles.x,
-                      ey = rotation.eulerAngles.y,
-                      ez = rotation.eulerAngles.z;
-                int rotationAngle = (int)ez;
+                int rotationAngle = (int)rotation.eulerAngles.z;
 
 
-                // Adjust rotation angle based off of mouse-button.
-                if (clockwise)
-                {
-                    rotationAngle -= 90;
-                }
-                else
-                {
-                    rotationAngle += 90;
-                }
+                // Switch rotation angle based off which button was pressed.
+                if (clockwise) rotationAngle -= 90;
+                else rotationAngle += 90;
 
                 Debug.Log(string.Format("Rotation Angle: {0}", rotationAngle));
 
@@ -172,14 +130,10 @@ public class OnTileClickLevel1 : MonoBehaviour {
                 map.SetTransformMatrix(tileMousePos, Matrix4x4.Rotate(Quaternion.Euler(0, 0, rotationAngle)));
                 map.RefreshTile(tileMousePos);
 
-                if (clockwise)
-                {
-                    snapSound1.Play();
-                }
-                else
-                {
-                    snapSound2.Play();
-                }
+                // Play the appropriate sound.
+                if (clockwise) snapSound1.Play();
+                else snapSound2.Play();
+
 
                 /**
                  * DEBUG::
@@ -212,10 +166,9 @@ public class OnTileClickLevel1 : MonoBehaviour {
                         break;
                 }
 
+                // If the pipes are properly connected, play the success sound and set booleans to indicate that the level is over and that the "Level Finished" text must be faded in.
                 if (CheckForSolution())
-                //if (!playedSuccess && CheckForSolution())
                 {
-                    playedSuccess = true;
                     successSound.Play();
                     fadingText = true;
                     levelOver = true;
@@ -226,11 +179,8 @@ public class OnTileClickLevel1 : MonoBehaviour {
         }
     }
 
-    //private TileType GetTileType(Vector3Int tilePos)
-    //{
-    //    //if (map.GetTile(tilePos).GetTileData(to).GetComponent<WallTile>() != null;)
-    //}
 
+    // TODO: Move Side enum and GetOppositeSide elsewhere!
     private enum Side
     {
         Top,
@@ -257,8 +207,9 @@ public class OnTileClickLevel1 : MonoBehaviour {
         }
     }
 
+
+    //TODO: REMOVE HARD-CODED SOLUTIONS, IMPLEMENT DYNAMIC SOLUTION CHECKING
     private bool CheckForSolution()
-    //private bool CheckForSolution(Side parentSide, int x, int y)
     {
         if (GetRotationAngle(-5, 2) != 180) return false;
         if (GetRotationAngle(-4, 2) != 180 && GetRotationAngle(-4, 2) != 0) return false;
@@ -308,6 +259,8 @@ public class OnTileClickLevel1 : MonoBehaviour {
         return rotationAngle;
     }
 
+
+    // TODO: Either remove this method or use it in place of the (slightly) clunkier GetRotationAngle if statements.
     private bool CheckAngleSolved(int x, int y, int angleSolution)
     {
         return GetRotationAngle(x, y) == angleSolution;

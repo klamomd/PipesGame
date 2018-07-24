@@ -7,21 +7,9 @@ using UnityEngine.UI;
 public class OnTileClickMainMenu : MonoBehaviour {
 
     public Tilemap map;
-    public AudioSource snapSound1;
-    public AudioSource snapSound2;
+    public AudioSource snapSound1,
+                       snapSound2;
     public Button playButton;
-
-    //private enum TileType
-    //{
-    //    threeWay,
-    //    fourWay,
-    //    straight,
-    //    bend,
-    //    closedEnd,
-    //    openEnd,
-    //    underGround,
-    //    dirt
-    //}
 
     // Use this for initialization
     void Start () {
@@ -44,7 +32,6 @@ public class OnTileClickMainMenu : MonoBehaviour {
         {
             rotate = true;
         }
-
 
 
         if (rotate)
@@ -70,36 +57,21 @@ public class OnTileClickMainMenu : MonoBehaviour {
                 var transformMatrix = map.GetTransformMatrix(tileMousePos);
                 Quaternion rotation = transformMatrix.rotation;
 
-                // TODO: Remove useless angles?
-                //float ex = rotation.eulerAngles.x,
-                //      ey = rotation.eulerAngles.y,
-                //      ez = rotation.eulerAngles.z;
                 int rotationAngle = (int)rotation.eulerAngles.z;
 
 
-                // Adjust rotation angle based off of mouse-button.
-                if (clockwise)
-                {
-                    rotationAngle -= 90;
-                }
-                else
-                {
-                    rotationAngle += 90;
-                }
+                // Switch rotation angle based off which button was pressed.
+                if (clockwise) rotationAngle -= 90;
+                else rotationAngle += 90;
 
 
                 // Rotate the tile and refresh it.
                 map.SetTransformMatrix(tileMousePos, Matrix4x4.Rotate(Quaternion.Euler(0, 0, rotationAngle)));
                 map.RefreshTile(tileMousePos);
 
-                if (clockwise)
-                {
-                    snapSound1.Play();
-                }
-                else
-                {
-                    snapSound2.Play();
-                }
+                // Play the appropriate sound.
+                if (clockwise) snapSound1.Play();
+                else snapSound2.Play();
             }
         }
     }
