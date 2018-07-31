@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
+using PipeTap.Enums;
+using PipeTap.Utilities;
 
 public class OnTileClickLevel1 : MonoBehaviour {
 
@@ -15,6 +17,8 @@ public class OnTileClickLevel1 : MonoBehaviour {
                 levelFinishedText3;
     public GameObject continueButton;
 
+    private PipeFaceCalculator calculator = new PipeFaceCalculator();
+
     public int startPipeX,
                startPipeY,
                endPipeX,
@@ -23,17 +27,8 @@ public class OnTileClickLevel1 : MonoBehaviour {
                 fadingText = false;
     const float period = 4.0f;
 
-    private enum TileType
-    {
-        threeWay,
-        fourWay,
-        straight,
-        bend,
-        closedEnd,
-        openEnd,
-        underGround,
-        dirt
-    }
+
+
 
     // Use this for initialization
     void Start () {
@@ -140,44 +135,69 @@ public class OnTileClickLevel1 : MonoBehaviour {
                  * Testing getting tile types
                  * 
                  ****/
+                TileType tileType;
                 var tileBase = map.GetTile(tileMousePos);
-
-                Debug.Log(string.Format("Tile type: {0}", tileBase.name));
-
-                switch(tileBase.name)
+                switch (tileBase.name)
                 {
                     case "BendPipe":
+                        tileType = TileType.bend;
                         break;
-                    case "CrossPipe":
+                    case "Cross Pipe":
+                        tileType = TileType.fourWay;
                         break;
                     case "ClosedDeadEnd":
+                        tileType = TileType.closedEnd;
                         break;
                     case "Dirt":
+                        tileType = TileType.dirt;
                         break;
                     case "OpenDeadEnd":
+                        tileType = TileType.openEnd;
                         break;
                     case "StraightPipe":
+                        tileType = TileType.straight;
                         break;
                     case "T Pipe":
+                        tileType = TileType.threeWay;
                         break;
                     case "UndergroundPipe":
+                        tileType = TileType.underGround;
                         break;
                     default:
-                        break;
+                        throw new System.Exception();
                 }
 
+                ////TODO: ADD A "COLOR TILE" FUNCTION TO BE CALLED BY CALCULATOR
+                ////TODO: ADD AN "UNCOLOR TILE" FUNCTION TO BE CALLED BY CALCULATOR
+
+                //// ATTEMPTING TO CHANGE ICON - WORKS
+                //map.SetTile(tileMousePos, GetRotatedTileBase(tileType, GetRotationAngle(adjustedX, adjustedY)));
+                //map.RefreshTile(tileMousePos);
+                //Debug.Log(string.Format("Tile type: {0}", tileBase.name));
+
+                
+
                 // If the pipes are properly connected, play the success sound and set booleans to indicate that the level is over and that the "Level Finished" text must be faded in.
-                if (CheckForSolution())
+                if (calculator.CheckIfSolutionFound(map, -9, 1, 9, -2))
                 {
                     successSound.Play();
                     fadingText = true;
                     levelOver = true;
                 }
+
+                //if (CheckForSolution())
+                //{
+                //    successSound.Play();
+                //    fadingText = true;
+                //    levelOver = true;
+                //}
             }
 
             
         }
     }
+
+    
 
 
     // TODO: Move Side enum and GetOppositeSide elsewhere!
@@ -264,5 +284,60 @@ public class OnTileClickLevel1 : MonoBehaviour {
     private bool CheckAngleSolved(int x, int y, int angleSolution)
     {
         return GetRotationAngle(x, y) == angleSolution;
+    }
+
+    private TileBase GetRotatedTileBase(TileType tileType, int rotation)
+    {
+        int x, y;
+        switch (tileType)
+        {
+            case TileType.bend:
+                x = -6;
+                y = -8;
+                break;
+            case TileType.closedEnd:
+                x = -9;
+                y = -9;
+                break;
+            case TileType.dirt:
+                x = -6;
+                y = -9;
+                break;
+            case TileType.fourWay:
+                x = -8;
+                y = -8;
+                break;
+            case TileType.openEnd:
+                x = -9;
+                y = -8;
+                break;
+            case TileType.straight:
+                x = -7;
+                y = -8;
+                break;
+            case TileType.threeWay:
+                x = -7;
+                y = -9;
+                break;
+            case TileType.underGround:
+                x = -6;
+                y = -9;
+                break;
+            default: throw new System.Exception();
+        }
+
+        // Rotate the tile and refresh it.
+        Vector3Int tilePos = new Vector3Int(x, y, 0);
+        map.SetTransformMatrix(tilePos, Matrix4x4.Rotate(Quaternion.Euler(0, 0, rotation)));
+        map.RefreshTile(tilePos);
+        
+
+        TileBase rotatedTileBase = map.GetTile(tilePos);
+
+        // Rotate the tile back and refresh it.
+        map.SetTransformMatrix(tilePos, Matrix4x4.Rotate(Quaternion.Euler(0, 0, -rotation)));
+        map.RefreshTile(tilePos);
+
+        return rotatedTileBase;
     }
 }
