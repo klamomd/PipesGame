@@ -142,6 +142,7 @@ public class OnTileClickLevel1 : MonoBehaviour {
                     case "BendPipe":
                         tileType = TileType.bend;
                         break;
+                    case "CrossPipe":
                     case "Cross Pipe":
                         tileType = TileType.fourWay;
                         break;
@@ -164,11 +165,9 @@ public class OnTileClickLevel1 : MonoBehaviour {
                         tileType = TileType.underGround;
                         break;
                     default:
-                        throw new System.Exception();
+                        Debug.LogError("ERROR: Invalid tile name, could not get tile type: " + tileBase.name);
+                        throw new System.Exception("Invalid tile name, could not get tile type: " + tileBase.name);
                 }
-
-                ////TODO: ADD A "COLOR TILE" FUNCTION TO BE CALLED BY CALCULATOR
-                ////TODO: ADD AN "UNCOLOR TILE" FUNCTION TO BE CALLED BY CALCULATOR
 
                 //// ATTEMPTING TO CHANGE ICON - WORKS
                 //map.SetTile(tileMousePos, GetRotatedTileBase(tileType, GetRotationAngle(adjustedX, adjustedY)));
@@ -185,6 +184,7 @@ public class OnTileClickLevel1 : MonoBehaviour {
                     levelOver = true;
                 }
 
+                // OLD WAY OF CHECKING FOR SOLUTION:
                 //if (CheckForSolution())
                 //{
                 //    successSound.Play();
@@ -200,32 +200,32 @@ public class OnTileClickLevel1 : MonoBehaviour {
     
 
 
-    // TODO: Move Side enum and GetOppositeSide elsewhere!
-    private enum Side
-    {
-        Top,
-        Left,
-        Bottom,
-        Right
+    //// TODO: Move Side enum and GetOppositeSide elsewhere!
+    //private enum Side
+    //{
+    //    Top,
+    //    Left,
+    //    Bottom,
+    //    Right
 
-    }
+    //}
 
-    private Side GetOppositeSide(Side s)
-    {
-        switch(s)
-        {
-            case Side.Top:
-                return Side.Bottom;
-            case Side.Left:
-                return Side.Right;
-            case Side.Bottom:
-                return Side.Top;
-            case Side.Right:
-                return Side.Left;
-            default:
-                throw new System.Exception();
-        }
-    }
+    //private Side GetOppositeSide(Side s)
+    //{
+    //    switch(s)
+    //    {
+    //        case Side.Top:
+    //            return Side.Bottom;
+    //        case Side.Left:
+    //            return Side.Right;
+    //        case Side.Bottom:
+    //            return Side.Top;
+    //        case Side.Right:
+    //            return Side.Left;
+    //        default:
+    //            throw new System.Exception();
+    //    }
+    //}
 
 
     //TODO: REMOVE HARD-CODED SOLUTIONS, IMPLEMENT DYNAMIC SOLUTION CHECKING
@@ -323,7 +323,9 @@ public class OnTileClickLevel1 : MonoBehaviour {
                 x = -6;
                 y = -9;
                 break;
-            default: throw new System.Exception();
+            default:
+                Debug.LogError("ERROR: Invalid tile type: " + tileType);
+                throw new System.Exception("Invalid tile type: " + tileType);
         }
 
         // Rotate the tile and refresh it.

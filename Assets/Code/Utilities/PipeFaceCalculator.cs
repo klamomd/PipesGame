@@ -235,9 +235,14 @@ namespace PipeTap.Utilities
         }
 
         // Returns a TileType enum representing the tile in that X,Y position.
-        public TileType GetTileType(int pipeX, int pipeY)
+        public TileType GetTileType(Tile tile)
         {
-            Vector3Int tilePos = new Vector3Int(pipeX, pipeY, 0);
+            return GetTileType(tile.X, tile.Y);
+        }
+
+        public TileType GetTileType(int tileX, int tileY)
+        {
+            Vector3Int tilePos = new Vector3Int(tileX, tileY, 0);
             var tileBase = map.GetTile(tilePos);
 
             switch (tileBase.name)
@@ -264,19 +269,38 @@ namespace PipeTap.Utilities
             }
         }
 
+        // Gets the z rotation angle of a given Tile.
+        private int GetRotationAngle(Tile tile)
+        {
+            return GetRotationAngle(tile.X, tile.Y);
+        }
+
         // Gets the z rotation angle of the tile at X,Y.
         private int GetRotationAngle(int x, int y)
         {
             Vector3Int tilePos = new Vector3Int(x, y, 0);
             Quaternion rotation = map.GetTransformMatrix(tilePos).rotation;
             int rawRotationAngle = (int)rotation.eulerAngles.z;
-            return CorrectRotationAngle(rawRotationAngle);
+            int correctedRotationAngle = CorrectRotationAngle(rawRotationAngle);
+
+            //Debug.LogFormat("Corrected rotation angle of ({0},{1}) : {2} degrees. (Original: {3})", x, y, correctedRotationAngle, rawRotationAngle);
+            return correctedRotationAngle;
         }
 
+        // Limits angles to between [0, 360).
         private int CorrectRotationAngle(int rotationAngle)
         {
-            if (rotationAngle >= 0) return rotationAngle;
-            else return rotationAngle + 360;
+            return Mathf.Abs(((rotationAngle / 90) % 4) * 90);
+
+
+
+            //if (rotationAngle >= 0)
+            ////if (rotationAngle >= 360)
+            //{
+            //    return ((rotationAngle / 90) % 4) * 90;
+            //}
+            ////if (rotationAngle >= 0) return rotationAngle;
+            //else return rotationAngle + 360;
         }
 
         // Gets the opposite direction from the one provided.
@@ -293,29 +317,18 @@ namespace PipeTap.Utilities
                 case Direction.Right:
                     return Direction.Left;
                 default:
-                    throw new System.Exception();
+                    Debug.LogError("ERROR: Invalid direction: " + d);
+                    throw new System.Exception("Invalid direction: " + d);
             }
         }
 
-        // Basic Tile class for easy comparison.
-        public class Tile
+        // Colors a tile. Fill indicates whether the background should be filled or transparent.
+        private void ColorTile(Tile tile, bool fill)
         {
-            public Tile(int x, int y)
-            {
-                X = x;
-                Y = y;
-            }
-
-            public int X { get; private set; }
-            public int Y { get; private set; }
-
-            public bool EqualsTile(Tile other)
-            {
-                if (other == null) return false;
-                return (other.X == X && other.Y == Y);
-            }
+            ColorTile(tile.X, tile.Y, fill);
         }
 
+        // Colors the tile at X, Y. Fill indicates whether the background should be filled or transparent.
         private void ColorTile(int x, int y, bool fill)
         {
             Vector3Int tileMousePos = new Vector3Int(x, y, 0);
@@ -324,7 +337,8 @@ namespace PipeTap.Utilities
             var transformMatrix = map.GetTransformMatrix(tileMousePos);
             Quaternion rotation = transformMatrix.rotation;
 
-            int rotationAngle = (int)rotation.eulerAngles.z;
+            int rotationAngle = GetRotationAngle(new Tile(x, y));
+            //int rotationAngle = (int)rotation.eulerAngles.z;
 
             TileType tileType;
             var tileBase = map.GetTile(tileMousePos);
@@ -339,6 +353,7 @@ namespace PipeTap.Utilities
                     case "BendPipe":
                         tileType = TileType.bend;
                         break;
+                    case "CrossPipe":
                     case "Cross Pipe":
                         tileType = TileType.fourWay;
                         break;
@@ -361,124 +376,253 @@ namespace PipeTap.Utilities
                         tileType = TileType.underGround;
                         break;
                     default:
-                        throw new System.Exception();
+                        Debug.LogError("ERROR: Invalid tile name, could not get tile type: " + tileBase.name);
+                        throw new System.Exception("Invalid tile name, could not get tile type: " + tileBase.name);
                 }
             }
 
-            if (fill) map.SetTile(tileMousePos, GetRotatedColoredTileBase(tileType, GetRotationAngle(x, y)));
-            else map.SetTile(tileMousePos, GetRotatedUncoloredTileBase(tileType, GetRotationAngle(x, y)));
+            map.SetTile(tileMousePos, GetRotatedTileBase(tileType, GetRotationAngle(x, y), fill));
+
+            //if (fill) map.SetTile(tileMousePos, GetRotatedColoredTileBase(tileType, GetRotationAngle(x, y)));
+            //else map.SetTile(tileMousePos, GetRotatedUncoloredTileBase(tileType, GetRotationAngle(x, y)));
             map.RefreshTile(tileMousePos);
             //Debug.Log(string.Format("Tile type: {0}", tileBase.name));
         }
 
-        private TileBase GetRotatedColoredTileBase(TileType tileType, int rotation)
+        private TileBase GetRotatedTileBase(TileType tileType, int rotation, bool fill)
         {
             int x, y;
             switch (tileType)
             {
                 case TileType.bend:
-                    x = -6;
-                    y = -8;
+                    x = -7;
+                    y = -11;
                     break;
                 case TileType.closedEnd:
-                    x = -9;
-                    y = -9;
+                    x = -13;
+                    y = -13;
                     break;
                 case TileType.dirt:
-                    x = -6;
-                    y = -9;
+                    x = -7;
+                    y = -13;
                     break;
                 case TileType.fourWay:
-                    x = -8;
-                    y = -8;
+                    x = -11;
+                    y = -11;
                     break;
                 case TileType.openEnd:
-                    x = -9;
-                    y = -8;
+                    x = -13;
+                    y = -11;
                     break;
                 case TileType.straight:
-                    x = -7;
-                    y = -8;
+                    x = -9;
+                    y = -11;
                     break;
                 case TileType.threeWay:
-                    x = -7;
-                    y = -9;
+                    x = -9;
+                    y = -13;
                     break;
                 case TileType.underGround:
-                    x = -8;
-                    y = -9;
+                    x = -11;
+                    y = -13;
                     break;
-                default: throw new System.Exception();
+                default:
+                    Debug.LogError("ERROR: Invalid tile type: " + tileType);
+                    throw new System.Exception("Invalid tile type: " + tileType);
             }
 
-            // Rotate the tile and refresh it.
+            // Transparent tileset is 8 tiles to the right.
+            if (!fill) x += 8;
+
+            switch (rotation)
+            {
+                case 90:
+                    y--;
+                    break;
+                case 180:
+                    y--;
+                    x++;
+                    break;
+                case 270:
+                    x++;
+                    break;
+                default:
+                    break;
+
+            }
+
             Vector3Int tilePos = new Vector3Int(x, y, 0);
-            map.SetTransformMatrix(tilePos, Matrix4x4.Rotate(Quaternion.Euler(0, 0, rotation)));
-            map.RefreshTile(tilePos);
-
-
-            TileBase rotatedTileBase = map.GetTile(tilePos);
-
-            // Rotate the tile back and refresh it.
-            map.SetTransformMatrix(tilePos, Matrix4x4.Rotate(Quaternion.Euler(0, 0, -rotation)));
-            map.RefreshTile(tilePos);
-
-            return rotatedTileBase;
+            return map.GetTile(tilePos);
         }
 
-        private TileBase GetRotatedUncoloredTileBase(TileType tileType, int rotation)
+
+
+        //private TileBase GetRotatedColoredTileBase(TileType tileType, int rotation)
+        //{
+        //    int x, y;
+        //    switch (tileType)
+        //    {
+        //        case TileType.bend:
+        //            x = -6;
+        //            y = -8;
+        //            break;
+        //        case TileType.closedEnd:
+        //            x = -9;
+        //            y = -9;
+        //            break;
+        //        case TileType.dirt:
+        //            x = -6;
+        //            y = -9;
+        //            break;
+        //        case TileType.fourWay:
+        //            x = -8;
+        //            y = -8;
+        //            break;
+        //        case TileType.openEnd:
+        //            x = -9;
+        //            y = -8;
+        //            break;
+        //        case TileType.straight:
+        //            x = -7;
+        //            y = -8;
+        //            break;
+        //        case TileType.threeWay:
+        //            x = -7;
+        //            y = -9;
+        //            break;
+        //        case TileType.underGround:
+        //            x = -8;
+        //            y = -9;
+        //            break;
+        //        default:
+        //            Debug.LogError("ERROR: Invalid tile type: " + tileType);
+        //            throw new System.Exception("Invalid tile type: " + tileType);
+        //    }
+
+        //    // Rotate the tile and refresh it.
+        //    Vector3Int tilePos = new Vector3Int(x, y, 0);
+        //    map.SetTransformMatrix(tilePos, Matrix4x4.Rotate(Quaternion.Euler(0, 0, rotation)));
+        //    map.RefreshTile(tilePos);
+
+
+        //    TileBase rotatedTileBase = map.GetTile(tilePos);
+
+        //    // Rotate the tile back and refresh it.
+        //    map.SetTransformMatrix(tilePos, Matrix4x4.Rotate(Quaternion.Euler(0, 0, -rotation)));
+        //    map.RefreshTile(tilePos);
+
+        //    return rotatedTileBase;
+        //}
+
+        //private TileBase GetRotatedUncoloredTileBase(TileType tileType, int rotation)
+        //{
+        //    int x, y;
+        //    switch (tileType)
+        //    {
+        //        case TileType.bend:
+        //            x = -2;
+        //            y = -8;
+        //            break;
+        //        case TileType.closedEnd:
+        //            x = -5;
+        //            y = -9;
+        //            break;
+        //        case TileType.dirt:
+        //            x = -2;
+        //            y = -9;
+        //            break;
+        //        case TileType.fourWay:
+        //            x = -4;
+        //            y = -8;
+        //            break;
+        //        case TileType.openEnd:
+        //            x = -5;
+        //            y = -8;
+        //            break;
+        //        case TileType.straight:
+        //            x = -3;
+        //            y = -8;
+        //            break;
+        //        case TileType.threeWay:
+        //            x = -3;
+        //            y = -9;
+        //            break;
+        //        case TileType.underGround:
+        //            x = -4;
+        //            y = -9;
+        //            break;
+        //        default: throw new System.Exception();
+        //    }
+
+        //    // Rotate the tile and refresh it.
+        //    Vector3Int tilePos = new Vector3Int(x, y, 0);
+        //    map.SetTransformMatrix(tilePos, Matrix4x4.Rotate(Quaternion.Euler(0, 0, rotation)));
+        //    map.RefreshTile(tilePos);
+
+
+        //    TileBase rotatedTileBase = map.GetTile(tilePos);
+
+        //    // Rotate the tile back and refresh it.
+        //    map.SetTransformMatrix(tilePos, Matrix4x4.Rotate(Quaternion.Euler(0, 0, -rotation)));
+        //    map.RefreshTile(tilePos);
+
+        //    return rotatedTileBase;
+        //}
+
+        // Function to get list of open faces for a given tile.
+        private List<Direction> GetOpenTileFaces(Tile tile)
         {
-            int x, y;
-            switch (tileType)
+            List<Direction> allSides = new List<Direction> { Direction.Left, Direction.Top, Direction.Right, Direction.Bottom };
+            List<Direction> openSides = new List<Direction>();
+
+            foreach (Direction d in allSides)
             {
-                case TileType.bend:
-                    x = -2;
-                    y = -8;
-                    break;
-                case TileType.closedEnd:
-                    x = -5;
-                    y = -9;
-                    break;
-                case TileType.dirt:
-                    x = -2;
-                    y = -9;
-                    break;
-                case TileType.fourWay:
-                    x = -4;
-                    y = -8;
-                    break;
-                case TileType.openEnd:
-                    x = -5;
-                    y = -8;
-                    break;
-                case TileType.straight:
-                    x = -3;
-                    y = -8;
-                    break;
-                case TileType.threeWay:
-                    x = -3;
-                    y = -9;
-                    break;
-                case TileType.underGround:
-                    x = -4;
-                    y = -9;
-                    break;
-                default: throw new System.Exception();
+                if (IsFaceOpen(tile.X, tile.Y, d))
+                    openSides.Add(d);
             }
 
-            // Rotate the tile and refresh it.
-            Vector3Int tilePos = new Vector3Int(x, y, 0);
-            map.SetTransformMatrix(tilePos, Matrix4x4.Rotate(Quaternion.Euler(0, 0, rotation)));
-            map.RefreshTile(tilePos);
+            return openSides;
+        }
 
 
-            TileBase rotatedTileBase = map.GetTile(tilePos);
 
-            // Rotate the tile back and refresh it.
-            map.SetTransformMatrix(tilePos, Matrix4x4.Rotate(Quaternion.Euler(0, 0, -rotation)));
-            map.RefreshTile(tilePos);
+        // Basic Tile class for easy comparison and other utilities.
+        public class Tile
+        {
+            public Tile(int x, int y)
+            {
+                X = x;
+                Y = y;
+            }
 
-            return rotatedTileBase;
+            public int X { get; private set; }
+            public int Y { get; private set; }
+
+            public bool EqualsTile(Tile other)
+            {
+                if (other == null) return false;
+                return (other.X == X && other.Y == Y);
+            }
+
+            public Tile GetAdjacentTileTop()
+            {
+                return new Tile(X, Y + 1);
+            }
+
+            public Tile GetAdjacentTileBottom()
+            {
+                return new Tile(X, Y - 1);
+            }
+
+            public Tile GetAdjacentTileLeft()
+            {
+                return new Tile(X - 1, Y);
+            }
+
+            public Tile GetAdjacentTileRight()
+            {
+                return new Tile(X + 1, Y);
+            }
         }
     }
 }
