@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using PipeTap.Utilities;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -14,6 +15,8 @@ public class OnTileClickLevel2 : MonoBehaviour {
                 levelFinishedText2,
                 levelFinishedText3;
     public GameObject continueButton;
+
+    private PipeFaceCalculator calculator = new PipeFaceCalculator();
 
     public int startPipeX,
                startPipeY,
@@ -134,44 +137,21 @@ public class OnTileClickLevel2 : MonoBehaviour {
                 if (clockwise) snapSound1.Play();
                 else snapSound2.Play();
 
-                /**
-                 * DEBUG::
-                 * Testing getting tile types
-                 * 
-                 ****/
-                var tileBase = map.GetTile(tileMousePos);
-
-                Debug.Log(string.Format("Tile type: {0}", tileBase.name));
-
-                switch(tileBase.name)
-                {
-                    case "BendPipe":
-                        break;
-                    case "CrossPipe":
-                        break;
-                    case "ClosedDeadEnd":
-                        break;
-                    case "Dirt":
-                        break;
-                    case "OpenDeadEnd":
-                        break;
-                    case "StraightPipe":
-                        break;
-                    case "T Pipe":
-                        break;
-                    case "UndergroundPipe":
-                        break;
-                    default:
-                        break;
-                }
-
                 // If the pipes are properly connected, play the success sound and set booleans to indicate that the level is over and that the "Level Finished" text must be faded in.
-                if (CheckForSolution())
+                if (calculator.CheckIfSolutionFound(map, startPipeX, startPipeY, endPipeX, endPipeY))
                 {
                     successSound.Play();
                     fadingText = true;
                     levelOver = true;
                 }
+
+                //// If the pipes are properly connected, play the success sound and set booleans to indicate that the level is over and that the "Level Finished" text must be faded in.
+                //if (CheckForSolution())
+                //{
+                //    successSound.Play();
+                //    fadingText = true;
+                //    levelOver = true;
+                //}
             }
 
             
@@ -205,71 +185,70 @@ public class OnTileClickLevel2 : MonoBehaviour {
         }
     }
 
-    //TODO: REMOVE HARD-CODED SOLUTIONS, IMPLEMENT DYNAMIC SOLUTION CHECKING
-    private bool CheckForSolution()
-    {
-        if (GetRotationAngle(-8, 2) != 180) return false;
-        if (GetRotationAngle(-7, 2) != 90) return false;
-        if (GetRotationAngle(-6, 2) != 90) return false;
-        if (GetRotationAngle(4, 2) != 90) return false;
-        if (GetRotationAngle(5, 2) != 180) return false;
-        if (GetRotationAngle(6, 2) != 90) return false;
+    //private bool CheckForSolution()
+    //{
+    //    if (GetRotationAngle(-8, 2) != 180) return false;
+    //    if (GetRotationAngle(-7, 2) != 90) return false;
+    //    if (GetRotationAngle(-6, 2) != 90) return false;
+    //    if (GetRotationAngle(4, 2) != 90) return false;
+    //    if (GetRotationAngle(5, 2) != 180) return false;
+    //    if (GetRotationAngle(6, 2) != 90) return false;
 
-        //if (GetRotationAngle(-8, 1) != 180) return false;
-        if (GetRotationAngle(-7, 1) != 0) return false;
-        if (GetRotationAngle(-6, 1) != 90 && GetRotationAngle(-6, 1) != 270) return false;
-        if (GetRotationAngle(4, 1) != 180) return false;
-        if (GetRotationAngle(5, 1) != 0) return false;
-        if (GetRotationAngle(6, 1) != 90 && GetRotationAngle(6, 1) != 270) return false;
+    //    //if (GetRotationAngle(-8, 1) != 180) return false;
+    //    if (GetRotationAngle(-7, 1) != 0) return false;
+    //    if (GetRotationAngle(-6, 1) != 90 && GetRotationAngle(-6, 1) != 270) return false;
+    //    if (GetRotationAngle(4, 1) != 180) return false;
+    //    if (GetRotationAngle(5, 1) != 0) return false;
+    //    if (GetRotationAngle(6, 1) != 90 && GetRotationAngle(6, 1) != 270) return false;
 
-        if (GetRotationAngle(-8, 0) != 270) return false;
-        if (GetRotationAngle(-7, 0) != 90) return false;
-        if (GetRotationAngle(-6, 0) != 270) return false;
-        if (GetRotationAngle(-5, 0) != 90) return false;
-        if (GetRotationAngle(-4, 0) != 180 && GetRotationAngle(-4, 0) != 0) return false;
-        if (GetRotationAngle(-3, 0) != 180 && GetRotationAngle(-3, 0) != 0) return false;
-        if (GetRotationAngle(-2, 0) != 90) return false;
-        if (GetRotationAngle(4, 0) != 90 && GetRotationAngle(4, 0) != 270) return false;
-        if (GetRotationAngle(6, 0) != 90 && GetRotationAngle(6, 0) != 270) return false;
+    //    if (GetRotationAngle(-8, 0) != 270) return false;
+    //    if (GetRotationAngle(-7, 0) != 90) return false;
+    //    if (GetRotationAngle(-6, 0) != 270) return false;
+    //    if (GetRotationAngle(-5, 0) != 90) return false;
+    //    if (GetRotationAngle(-4, 0) != 180 && GetRotationAngle(-4, 0) != 0) return false;
+    //    if (GetRotationAngle(-3, 0) != 180 && GetRotationAngle(-3, 0) != 0) return false;
+    //    if (GetRotationAngle(-2, 0) != 90) return false;
+    //    if (GetRotationAngle(4, 0) != 90 && GetRotationAngle(4, 0) != 270) return false;
+    //    if (GetRotationAngle(6, 0) != 90 && GetRotationAngle(6, 0) != 270) return false;
 
-        if (GetRotationAngle(-7, -1) != 270) return false;
-        if (GetRotationAngle(-6, -1) != 90) return false;
-        if (GetRotationAngle(-5, -1) != 270) return false;
-        if (GetRotationAngle(-4, -1) != 90) return false;
-        if (GetRotationAngle(-3, -1) != 90) return false;
-        if (GetRotationAngle(-2, -1) != 270) return false;
-        if (GetRotationAngle(-1, -1) != 180 && GetRotationAngle(-1, -1) != 0) return false;
-        if (GetRotationAngle(0, -1) != 90) return false;
-        if (GetRotationAngle(1, -1) != 180) return false;
-        if (GetRotationAngle(2, -1) != 90) return false;
-        if (GetRotationAngle(3, -1) != 180) return false;
-        if (GetRotationAngle(4, -1) != 0) return false;
-        if (GetRotationAngle(6, -1) != 270) return false;
-        if (GetRotationAngle(7, -1) != 90) return false;
+    //    if (GetRotationAngle(-7, -1) != 270) return false;
+    //    if (GetRotationAngle(-6, -1) != 90) return false;
+    //    if (GetRotationAngle(-5, -1) != 270) return false;
+    //    if (GetRotationAngle(-4, -1) != 90) return false;
+    //    if (GetRotationAngle(-3, -1) != 90) return false;
+    //    if (GetRotationAngle(-2, -1) != 270) return false;
+    //    if (GetRotationAngle(-1, -1) != 180 && GetRotationAngle(-1, -1) != 0) return false;
+    //    if (GetRotationAngle(0, -1) != 90) return false;
+    //    if (GetRotationAngle(1, -1) != 180) return false;
+    //    if (GetRotationAngle(2, -1) != 90) return false;
+    //    if (GetRotationAngle(3, -1) != 180) return false;
+    //    if (GetRotationAngle(4, -1) != 0) return false;
+    //    if (GetRotationAngle(6, -1) != 270) return false;
+    //    if (GetRotationAngle(7, -1) != 90) return false;
 
 
-        if (GetRotationAngle(-6, -2) != 90 && GetRotationAngle(-6, -2) != 270) return false;
-        if (GetRotationAngle(-5, -2) != 180) return false;
-        if (GetRotationAngle(-4, -2) != 270) return false;
-        if (GetRotationAngle(-3, -2) != 270) return false;
-        if (GetRotationAngle(-2, -2) != 180 && GetRotationAngle(-2, -2) != 0) return false;
-        if (GetRotationAngle(-1, -2) != 0) return false;
-        if (GetRotationAngle(0, -2) != 270) return false;
-        if (GetRotationAngle(1, -2) != 270) return false;
-        if (GetRotationAngle(2, -2) != 270) return false;
-        if (GetRotationAngle(3, -2) != 0) return false;
-        if (GetRotationAngle(6, -2) != 180) return false;
-        //if (GetRotationAngle(7, -2) != 90) return false;
-        if (GetRotationAngle(8, -2) != 90) return false;
+    //    if (GetRotationAngle(-6, -2) != 90 && GetRotationAngle(-6, -2) != 270) return false;
+    //    if (GetRotationAngle(-5, -2) != 180) return false;
+    //    if (GetRotationAngle(-4, -2) != 270) return false;
+    //    if (GetRotationAngle(-3, -2) != 270) return false;
+    //    if (GetRotationAngle(-2, -2) != 180 && GetRotationAngle(-2, -2) != 0) return false;
+    //    if (GetRotationAngle(-1, -2) != 0) return false;
+    //    if (GetRotationAngle(0, -2) != 270) return false;
+    //    if (GetRotationAngle(1, -2) != 270) return false;
+    //    if (GetRotationAngle(2, -2) != 270) return false;
+    //    if (GetRotationAngle(3, -2) != 0) return false;
+    //    if (GetRotationAngle(6, -2) != 180) return false;
+    //    //if (GetRotationAngle(7, -2) != 90) return false;
+    //    if (GetRotationAngle(8, -2) != 90) return false;
 
-        if (GetRotationAngle(-6, -3) != 270) return false;
-        if (GetRotationAngle(-5, -3) != 0) return false;
-        if (GetRotationAngle(6, -3) != 270) return false;
-        if (GetRotationAngle(7, -3) != 270) return false;
-        if (GetRotationAngle(8, -3) != 0) return false;
+    //    if (GetRotationAngle(-6, -3) != 270) return false;
+    //    if (GetRotationAngle(-5, -3) != 0) return false;
+    //    if (GetRotationAngle(6, -3) != 270) return false;
+    //    if (GetRotationAngle(7, -3) != 270) return false;
+    //    if (GetRotationAngle(8, -3) != 0) return false;
 
-        return true;
-    }
+    //    return true;
+    //}
 
     private int GetRotationAngle(int x, int y)
     {
