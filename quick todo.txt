@@ -9,3 +9,4 @@ Quick TODO:
 - Need level generator.
 - Need screen space at bottom for banner ads.
 - Clean out old comments/TODOs from scripts, and move reused code elements like TileType into separate files.
+- Buttons need to be bigger!
