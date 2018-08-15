@@ -1,5 +1,11 @@
 Quick TODO:
 
-- Most important to gameplay right now is the fact that there is no proper solution-checking. Instead I have a single hard-coded solution for each level just as a stand-in. Need to flesh out an algorithm to check that there is a path from start to finish, and that the entirety of the path has no leaks (a leak being that an open end of a pipe does not face the open end of another pipe).
-- Also, for future level development, it would be nice to create a level-generator instead of fleshing them out by hand.
-- ALSO: Clean out old comments/TODOs from scripts, and move reused code elements like TileType into separate files.
+- PLAY button is located in wrong place, both on PC and Android.
+- Main menu music is too loud.
+- Need icon to work.
+- Need Android back button to function. https://answers.unity.com/questions/25535/android-back-button-event.html
+	= If in a scene, make it so that it prompts the user to return to the main menu.
+	= If in the main menu, make it so that it prompts the user to quit the game.
+- Need level generator.
+- Need screen space at bottom for banner ads.
+- Clean out old comments/TODOs from scripts, and move reused code elements like TileType into separate files.
