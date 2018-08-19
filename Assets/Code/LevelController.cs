@@ -60,6 +60,9 @@ public class LevelController : MonoBehaviour {
         endPipeY = endCoords.Item2;
 
         RepopulateTileMap();
+
+        // Quickly check for a solution to color any attached pipes properly.
+        calculator.CheckIfSolutionFound(map, startPipeX, startPipeY, endPipeX, endPipeY);
     }
 	
 	// Update is called once per frame
