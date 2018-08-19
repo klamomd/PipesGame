@@ -12,11 +12,15 @@ public class LevelController : MonoBehaviour {
     public AudioSource snapSound1,
                        snapSound2,
                        successSound;
-    public Text levelFinishedText1,
-                levelFinishedText2,
-                levelFinishedText3;
-    public GameObject nextLevelButton,
-                      mainMenuButton;
+    //public Text levelFinishedText1,
+    //            levelFinishedText2,
+    //            levelFinishedText3;
+    //public GameObject nextLevelButton,
+    //                  mainMenuButton;
+    public GameObject levelDoneUI,
+                      quitLevelUI,
+                      darkenUIPanel;
+    
 
     private PipeFaceCalculator calculator;
 
@@ -26,7 +30,9 @@ public class LevelController : MonoBehaviour {
                 endPipeY;
     public bool levelOver = false,
                 fadingText = false,
-                runOnceOnStart = true;
+                runOnceOnStart = true,
+                showingUI = false;
+
     const float period = 4.0f;
     private const bool __IS_DEBUG = true;
 
@@ -34,21 +40,25 @@ public class LevelController : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        // Make the "Level Finished" text and Continue button invisible.
-        Color colorOfObject1 = levelFinishedText1.color;
-        colorOfObject1.a = 0;
-        levelFinishedText1.color = colorOfObject1;
+        //// Make the "Level Finished" text and Continue button invisible.
+        //Color colorOfObject1 = levelFinishedText1.color;
+        //colorOfObject1.a = 0;
+        //levelFinishedText1.color = colorOfObject1;
 
-        Color colorOfObject2 = levelFinishedText2.color;
-        colorOfObject2.a = 0;
-        levelFinishedText2.color = colorOfObject2;
+        //Color colorOfObject2 = levelFinishedText2.color;
+        //colorOfObject2.a = 0;
+        //levelFinishedText2.color = colorOfObject2;
 
-        Color colorOfObject3 = levelFinishedText3.color;
-        colorOfObject3.a = 0;
-        levelFinishedText3.color = colorOfObject3;
+        //Color colorOfObject3 = levelFinishedText3.color;
+        //colorOfObject3.a = 0;
+        //levelFinishedText3.color = colorOfObject3;
 
-        nextLevelButton.SetActive(false);
-        mainMenuButton.SetActive(false);
+        //nextLevelButton.SetActive(false);
+        //mainMenuButton.SetActive(false);
+
+        quitLevelUI.SetActive(false);
+        levelDoneUI.SetActive(false);
+        darkenUIPanel.SetActive(false);
 
         calculator = new PipeFaceCalculator(map);
 
@@ -71,27 +81,45 @@ public class LevelController : MonoBehaviour {
         // If fading text in, increase the opacity of the "Level Finished" text and make the Next Level and Main Menu buttons visible.
         if (fadingText)
         {
-            float prop = (Time.time / period);
+            //float prop = (Time.time / period);
 
-            Color colorOfObject1 = levelFinishedText1.color;
-            colorOfObject1.a = Mathf.Lerp(0, 1, prop);
-            levelFinishedText1.color = colorOfObject1;
+            //Color colorOfObject1 = levelFinishedText1.color;
+            //colorOfObject1.a = Mathf.Lerp(0, 1, prop);
+            //levelFinishedText1.color = colorOfObject1;
 
-            Color colorOfObject2 = levelFinishedText2.color;
-            colorOfObject2.a = Mathf.Lerp(0, 1, prop);
-            levelFinishedText2.color = colorOfObject2;
+            //Color colorOfObject2 = levelFinishedText2.color;
+            //colorOfObject2.a = Mathf.Lerp(0, 1, prop);
+            //levelFinishedText2.color = colorOfObject2;
 
-            Color colorOfObject3 = levelFinishedText3.color;
-            colorOfObject3.a = Mathf.Lerp(0, 1, prop);
-            levelFinishedText3.color = colorOfObject3;
+            //Color colorOfObject3 = levelFinishedText3.color;
+            //colorOfObject3.a = Mathf.Lerp(0, 1, prop);
+            //levelFinishedText3.color = colorOfObject3;
 
-            nextLevelButton.SetActive(true);
-            mainMenuButton.SetActive(true);
-
+            //nextLevelButton.SetActive(true);
+            //mainMenuButton.SetActive(true);
+            levelDoneUI.SetActive(true);
+            darkenUIPanel.SetActive(true);
         }
 
         bool rotate = false;
         bool clockwise = false;
+
+        // If escape/back button is pressed, show the quit UI.
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (showingUI)
+            {
+                showingUI = false;
+                darkenUIPanel.SetActive(false);
+                quitLevelUI.SetActive(false);
+            }
+            else
+            {
+                showingUI = true;
+                darkenUIPanel.SetActive(true);
+                quitLevelUI.SetActive(true);
+            }
+        }
 
         // Change rotation direction based off of which button is clicked.
         if (Input.GetMouseButtonDown(0))
@@ -112,7 +140,7 @@ public class LevelController : MonoBehaviour {
         //}
 
         // Only rotate if the level is not over and the user has left- or right-clicked.
-        if (!levelOver && rotate)
+        if (!levelOver && !showingUI && rotate)
         {
             Vector3 mouseVec3 = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             //Debug.Log(string.Format("Co-ords of mouse is [X: {0} Y: {1} Z:{2}]", mouseVec3.x, mouseVec3.y, mouseVec3.z));
@@ -285,15 +313,11 @@ public class LevelController : MonoBehaviour {
         return GetRotationAngle(x, y) == angleSolution;
     }
 
-    //// Unity does not have Tuples, so here's an implementation for me to use.
-    //private class Tuple<T1, T2>
-    //{
-    //    public T1 Item1 { get; private set; }
-    //    public T2 Item2 { get; private set; }
-    //    internal Tuple(T1 item1, T2 item2)
-    //    {
-    //        Item1 = item1;
-    //        Item2 = item2;
-    //    }
-    //}
+    public void CloseQuitUI()
+    {
+        darkenUIPanel.SetActive(false);
+        quitLevelUI.SetActive(false);
+        showingUI = false;
+        snapSound1.Play();
+    }
 }

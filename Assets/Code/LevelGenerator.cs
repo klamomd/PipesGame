@@ -125,15 +125,13 @@ namespace PipeTap.Utilities
             }
 
             return newLevelTiles;
-
-
-
-            //throw new NotImplementedException();
         }
         
         private char[,] GenerateCharSet()
         {
             //bool foundPath = false;
+            //int failureCount = 0;
+
             while (true)
             //while (!foundPath)
             {
@@ -155,7 +153,11 @@ namespace PipeTap.Utilities
                     //foundPath = true;
                     return coloredTiles;
                 }
-                catch { }
+                catch
+                {
+                    //failureCount++;
+                    //Debug.Log("FAILURE COUNT: " + failureCount);
+                }
             }
         }
 

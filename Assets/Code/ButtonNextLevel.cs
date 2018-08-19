@@ -6,10 +6,12 @@ using UnityEngine.Advertisements;
 public class ButtonNextLevel : MonoBehaviour
 {
     private int nextScene = 0;
+    public AudioSource snapSound1;
 
     public void NextLevelButton(int index)
     {
         //SceneManager.LoadScene(index);
+        PlaySnap();
         if (index % 3 == 0)
         {
             var options = new ShowOptions { resultCallback = AfterAdLoadScene };
@@ -22,12 +24,14 @@ public class ButtonNextLevel : MonoBehaviour
 
     public void NextLevelButton(string levelName)
     {
+        PlaySnap();
         SceneManager.LoadScene(levelName);
     }
 
     public void MainMenuButton()
     {
         var options = new ShowOptions { resultCallback = AfterAdLoadMainMenu };
+        PlaySnap();
         if (Advertisement.IsReady()) Advertisement.Show(options);
         //SceneManager.LoadScene(0);
 
@@ -42,5 +46,10 @@ public class ButtonNextLevel : MonoBehaviour
     private void AfterAdLoadMainMenu(ShowResult result)
     {
         SceneManager.LoadScene(0);
+    }
+
+    private void PlaySnap()
+    {
+        if (snapSound1 != null) snapSound1.Play();
     }
 }

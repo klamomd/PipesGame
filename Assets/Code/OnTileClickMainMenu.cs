@@ -37,7 +37,7 @@ public class OnTileClickMainMenu : MonoBehaviour {
         if (rotate)
         {
             Vector3 mouseVec3 = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Debug.Log(string.Format("Co-ords of mouse is [X: {0} Y: {1} Z:{2}]", mouseVec3.x, mouseVec3.y, mouseVec3.z));
+            //Debug.Log(string.Format("Co-ords of mouse is [X: {0} Y: {1} Z:{2}]", mouseVec3.x, mouseVec3.y, mouseVec3.z));
             
             int adjustedX = (int)mouseVec3.x;
             int adjustedY = (int)mouseVec3.y;
@@ -49,7 +49,7 @@ public class OnTileClickMainMenu : MonoBehaviour {
             // Skip border tiles
             if (adjustedX > -9 && adjustedX < 9 && adjustedY < 5 && adjustedY > -5)
             {
-                Debug.Log(string.Format("Adjusted co-ords of mouse is [X: {0} Y: {1} Z: {2}]", adjustedX, adjustedY, adjustedZ));
+                //Debug.Log(string.Format("Adjusted co-ords of mouse is [X: {0} Y: {1} Z: {2}]", adjustedX, adjustedY, adjustedZ));
 
                 Vector3Int tileMousePos = new Vector3Int(adjustedX, adjustedY, 0);
 
