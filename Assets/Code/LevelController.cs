@@ -20,15 +20,17 @@ public class LevelController : MonoBehaviour {
 
     private PipeFaceCalculator calculator;
 
-    public int startPipeX,
-               startPipeY,
-               endPipeX,
-               endPipeY;
+    private int startPipeX,
+                startPipeY,
+                endPipeX,
+                endPipeY;
     public bool levelOver = false,
                 fadingText = false,
                 runOnceOnStart = true;
     const float period = 4.0f;
     private const bool __IS_DEBUG = true;
+
+    private System.Random random = new System.Random();
 
     // Use this for initialization
     void Start () {
@@ -49,6 +51,13 @@ public class LevelController : MonoBehaviour {
         mainMenuButton.SetActive(false);
 
         calculator = new PipeFaceCalculator(map);
+
+        var startCoords = GetRandomStartPipeCoords();
+        var endCoords = GetRandomEndPipeCoords();
+        startPipeX = startCoords.Item1;
+        startPipeY = startCoords.Item2;
+        endPipeX = endCoords.Item1;
+        endPipeY = endCoords.Item2;
 
         RepopulateTileMap();
     }
@@ -198,6 +207,22 @@ public class LevelController : MonoBehaviour {
             default:
                 throw new System.Exception();
         }
+    }
+
+    private Tuple<int, int> GetRandomStartPipeCoords()
+    {
+        int x = -9;
+        int y = random.Next(9) - 4;
+
+        return new Tuple<int, int>(x, y);
+    }
+
+    private Tuple<int, int> GetRandomEndPipeCoords()
+    {
+        int x = 9;
+        int y = random.Next(9) - 4;
+
+        return new Tuple<int, int>(x, y);
     }
 
     private Tuple<int, int> ConvertCoordinates(Tuple<int, int> coords, int minX, int minY, bool toUnity)
