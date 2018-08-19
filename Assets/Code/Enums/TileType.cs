@@ -9,6 +9,11 @@
         closedEnd,
         openEnd,
         underGround,
-        dirt
+        dirt,
+        start,
+        end,
+        borderStraight,
+        borderBend,
+        borderDeadEnd
     }
 }

@@ -21,6 +21,15 @@ namespace PipeTap.Utilities
         private List<Tile> coloredTiles = new List<Tile>();
         private bool foundLeaks = false;
 
+        public PipeFaceCalculator()
+        {
+
+        }
+        public PipeFaceCalculator(Tilemap map)
+        {
+            this.map = map;
+        }
+
         public bool CheckIfSolutionFound(Tilemap mapToCheck, int startX, int startY, int endX, int endY)
         {
             if (mapToCheck == null) throw new System.Exception("Null Tilemap");
@@ -52,7 +61,7 @@ namespace PipeTap.Utilities
         // FindSolution is given the currentTile to branch through, and a Direction completedDirection to NOT branch through.
         private bool FindSolution(Tile currentTile, Direction completedDirection)
         {
-            Debug.Log(string.Format("||ENTERING [X: {0} Y: {1} completedDirection: {2}]", currentTile.X, currentTile.Y, completedDirection));
+            //Debug.Log(string.Format("||ENTERING [X: {0} Y: {1} completedDirection: {2}]", currentTile.X, currentTile.Y, completedDirection));
 
 
             coloredTiles.Add(currentTile);
@@ -235,6 +244,7 @@ namespace PipeTap.Utilities
             Vector3Int tilePos = new Vector3Int(tileX, tileY, 0);
             var tileBase = map.GetTile(tilePos);
 
+            if (tileBase == null) return TileType.dirt;
             switch (tileBase.name)
             {
                 case "BendPipe":
@@ -371,10 +381,12 @@ namespace PipeTap.Utilities
             switch (tileType)
             {
                 case TileType.bend:
+                case TileType.borderBend:
                     x = -7;
                     y = -11;
                     break;
                 case TileType.closedEnd:
+                case TileType.borderDeadEnd:
                     x = -13;
                     y = -13;
                     break;
@@ -391,6 +403,7 @@ namespace PipeTap.Utilities
                     y = -11;
                     break;
                 case TileType.straight:
+                case TileType.borderStraight:
                     x = -9;
                     y = -11;
                     break;
@@ -399,6 +412,8 @@ namespace PipeTap.Utilities
                     y = -13;
                     break;
                 case TileType.underGround:
+                case TileType.start:
+                case TileType.end:
                     x = -11;
                     y = -13;
                     break;
@@ -432,6 +447,15 @@ namespace PipeTap.Utilities
             return map.GetTile(tilePos);
         }
 
+        public void PaintTile(int x, int y, TileType tileType, int rotation, bool highlight)
+        {
+            Vector3Int pos = new Vector3Int(x, y, 0);
+            TileBase baseToPaint = GetRotatedTileBase(tileType, rotation, highlight);
+
+            map.SetTile(pos, baseToPaint);
+            map.SetTransformMatrix(pos, Matrix4x4.Rotate(Quaternion.Euler(0, 0, rotation)));
+            map.RefreshTile(pos);
+        }
 
         // Function to get list of open faces for a given tile.
         private List<Direction> GetOpenTileFaces(Tile tile)

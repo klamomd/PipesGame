@@ -1,11 +1,12 @@
 ﻿using PipeTap.Utilities;
+using PipeTap.Enums;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 
-public class OnTileClickLevel2 : MonoBehaviour {
+public class LevelController : MonoBehaviour {
 
     public Tilemap map;
     public AudioSource snapSound1,
@@ -16,27 +17,17 @@ public class OnTileClickLevel2 : MonoBehaviour {
                 levelFinishedText3;
     public GameObject continueButton;
 
-    private PipeFaceCalculator calculator = new PipeFaceCalculator();
+    private PipeFaceCalculator calculator;
 
     public int startPipeX,
                startPipeY,
                endPipeX,
                endPipeY;
     public bool levelOver = false,
-                fadingText = false;
+                fadingText = false,
+                runOnceOnStart = true;
     const float period = 4.0f;
-
-    private enum TileType
-    {
-        threeWay,
-        fourWay,
-        straight,
-        bend,
-        closedEnd,
-        openEnd,
-        underGround,
-        dirt
-    }
+    private const bool __IS_DEBUG = true;
 
     // Use this for initialization
     void Start () {
@@ -54,6 +45,32 @@ public class OnTileClickLevel2 : MonoBehaviour {
         levelFinishedText3.color = colorOfObject3;
 
         continueButton.SetActive(false);
+
+
+        calculator = new PipeFaceCalculator(map);
+
+        //LevelGenerator levelGenerator = new LevelGenerator();
+
+        //Tuple<int, int> startCoords = ConvertCoordinates(startPipeX, startPipeY, -9, -5, false);
+        //Tuple<int, int> endCoords = ConvertCoordinates(endPipeX, endPipeY, -9, -5, false);
+
+        //Tuple<TileType, int>[,] newLevel = levelGenerator.GenerateNewLevel(19, 11, startCoords.Item1, startCoords.Item2, endCoords.Item1, endCoords.Item2);
+        //Tuple<TileType, int>[,] newLevel = levelGenerator.GenerateNewLevel(19, 11, ConvertCoordinates(startPipeX, startPipeY, -9, -5, false), ConvertCoordinates(endPipeX, endPipeY, -9, -5, false));
+
+        //TODO: LEAVING OFF: NEED TO TEST AND CORRECT PAINTING!
+
+        RepopulateTileMap();
+        map.RefreshAllTiles();
+
+        //for (int x = 0; x < newLevel.GetLength(0); x++)
+        //{
+        //    for (int y = 0; y < newLevel.GetLength(1); y++)
+        //    {
+        //        Tuple<int, int> convertedCoords = ConvertCoordinates(x, y, -9, -5, true);
+        //        bool highlight = levelGenerator.IsBorderTile(x, y);
+        //        calculator.PaintTile(convertedCoords.Item1, convertedCoords.Item2, newLevel[x, y].Item1, newLevel[x, y].Item2, highlight);
+        //    }
+        //}
     }
 	
 	// Update is called once per frame
@@ -94,6 +111,11 @@ public class OnTileClickLevel2 : MonoBehaviour {
             rotate = true;
         }
 
+        if (__IS_DEBUG && Input.GetKeyDown(KeyCode.A))
+        {
+            RepopulateTileMap();
+            snapSound2.Play();
+        }
 
         // Only rotate if the level is not over and the user has left- or right-clicked.
         if (!levelOver && rotate)
@@ -161,6 +183,26 @@ public class OnTileClickLevel2 : MonoBehaviour {
         }
     }
 
+    private void RepopulateTileMap()
+    {
+        Tuple<int, int> startCoords = ConvertCoordinates(startPipeX, startPipeY, -9, -5, false);
+        Tuple<int, int> endCoords = ConvertCoordinates(endPipeX, endPipeY, -9, -5, false);
+
+        LevelGenerator levelGenerator = new LevelGenerator();
+
+        Tuple<TileType, int>[,] newLevel = levelGenerator.GenerateNewLevel(19, 11, startCoords.Item1, startCoords.Item2, endCoords.Item1, endCoords.Item2);
+
+        for (int x = 0; x < newLevel.GetLength(0); x++)
+        {
+            for (int y = 0; y < newLevel.GetLength(1); y++)
+            {
+                Tuple<int, int> convertedCoords = ConvertCoordinates(x, y, -9, -5, true);
+                bool highlight = levelGenerator.IsBorderTile(x, y);
+                calculator.PaintTile(convertedCoords.Item1, convertedCoords.Item2, newLevel[x, y].Item1, newLevel[x, y].Item2, highlight);
+            }
+        }
+    }
+
     // TODO: Move Side enum and GetOppositeSide elsewhere!
     private enum Side
     {
@@ -188,70 +230,48 @@ public class OnTileClickLevel2 : MonoBehaviour {
         }
     }
 
-    //private bool CheckForSolution()
-    //{
-    //    if (GetRotationAngle(-8, 2) != 180) return false;
-    //    if (GetRotationAngle(-7, 2) != 90) return false;
-    //    if (GetRotationAngle(-6, 2) != 90) return false;
-    //    if (GetRotationAngle(4, 2) != 90) return false;
-    //    if (GetRotationAngle(5, 2) != 180) return false;
-    //    if (GetRotationAngle(6, 2) != 90) return false;
+    private Tuple<int, int> ConvertCoordinates(Tuple<int, int> coords, int minX, int minY, bool toUnity)
+    {
+        return ConvertCoordinates(coords.Item1, coords.Item2, minX, minY, toUnity);
+    }
 
-    //    //if (GetRotationAngle(-8, 1) != 180) return false;
-    //    if (GetRotationAngle(-7, 1) != 0) return false;
-    //    if (GetRotationAngle(-6, 1) != 90 && GetRotationAngle(-6, 1) != 270) return false;
-    //    if (GetRotationAngle(4, 1) != 180) return false;
-    //    if (GetRotationAngle(5, 1) != 0) return false;
-    //    if (GetRotationAngle(6, 1) != 90 && GetRotationAngle(6, 1) != 270) return false;
-
-    //    if (GetRotationAngle(-8, 0) != 270) return false;
-    //    if (GetRotationAngle(-7, 0) != 90) return false;
-    //    if (GetRotationAngle(-6, 0) != 270) return false;
-    //    if (GetRotationAngle(-5, 0) != 90) return false;
-    //    if (GetRotationAngle(-4, 0) != 180 && GetRotationAngle(-4, 0) != 0) return false;
-    //    if (GetRotationAngle(-3, 0) != 180 && GetRotationAngle(-3, 0) != 0) return false;
-    //    if (GetRotationAngle(-2, 0) != 90) return false;
-    //    if (GetRotationAngle(4, 0) != 90 && GetRotationAngle(4, 0) != 270) return false;
-    //    if (GetRotationAngle(6, 0) != 90 && GetRotationAngle(6, 0) != 270) return false;
-
-    //    if (GetRotationAngle(-7, -1) != 270) return false;
-    //    if (GetRotationAngle(-6, -1) != 90) return false;
-    //    if (GetRotationAngle(-5, -1) != 270) return false;
-    //    if (GetRotationAngle(-4, -1) != 90) return false;
-    //    if (GetRotationAngle(-3, -1) != 90) return false;
-    //    if (GetRotationAngle(-2, -1) != 270) return false;
-    //    if (GetRotationAngle(-1, -1) != 180 && GetRotationAngle(-1, -1) != 0) return false;
-    //    if (GetRotationAngle(0, -1) != 90) return false;
-    //    if (GetRotationAngle(1, -1) != 180) return false;
-    //    if (GetRotationAngle(2, -1) != 90) return false;
-    //    if (GetRotationAngle(3, -1) != 180) return false;
-    //    if (GetRotationAngle(4, -1) != 0) return false;
-    //    if (GetRotationAngle(6, -1) != 270) return false;
-    //    if (GetRotationAngle(7, -1) != 90) return false;
-
-
-    //    if (GetRotationAngle(-6, -2) != 90 && GetRotationAngle(-6, -2) != 270) return false;
-    //    if (GetRotationAngle(-5, -2) != 180) return false;
-    //    if (GetRotationAngle(-4, -2) != 270) return false;
-    //    if (GetRotationAngle(-3, -2) != 270) return false;
-    //    if (GetRotationAngle(-2, -2) != 180 && GetRotationAngle(-2, -2) != 0) return false;
-    //    if (GetRotationAngle(-1, -2) != 0) return false;
-    //    if (GetRotationAngle(0, -2) != 270) return false;
-    //    if (GetRotationAngle(1, -2) != 270) return false;
-    //    if (GetRotationAngle(2, -2) != 270) return false;
-    //    if (GetRotationAngle(3, -2) != 0) return false;
-    //    if (GetRotationAngle(6, -2) != 180) return false;
-    //    //if (GetRotationAngle(7, -2) != 90) return false;
-    //    if (GetRotationAngle(8, -2) != 90) return false;
-
-    //    if (GetRotationAngle(-6, -3) != 270) return false;
-    //    if (GetRotationAngle(-5, -3) != 0) return false;
-    //    if (GetRotationAngle(6, -3) != 270) return false;
-    //    if (GetRotationAngle(7, -3) != 270) return false;
-    //    if (GetRotationAngle(8, -3) != 0) return false;
-
-    //    return true;
-    //}
+    private Tuple<int, int> ConvertCoordinates(int x, int y, int minX, int minY, bool toUnity)
+    {
+        if (toUnity)
+        {
+            int newX = x - Mathf.Abs(minX);
+            int newY = -(y - Mathf.Abs(minY));
+            return new Tuple<int, int>(newX, newY);
+            // 0 -> 5
+            // 1 -> 4
+            // 2 -> 3
+            // 3 -> 2
+            // 4 -> 1
+            // 5 -> 0
+            // 6 -> -1
+            // 7 -> -2
+            // 8 -> -3
+            // 9 -> -4
+            // 10 -> -5
+        }
+        else
+        {
+            int newX = x + Mathf.Abs(minX);
+            int newY = -(y - Mathf.Abs(minY));
+            return new Tuple<int, int>(newX, newY);
+            //  5 -> 0 
+            //  4 -> 1
+            //  3 -> 2
+            //  2 -> 3
+            //  1 -> 4
+            //  0 -> 5
+            // -1 -> 6
+            // -2 -> 7
+            // -3 -> 8
+            // -4 -> 9
+            // -5 -> 10
+        }
+    }
 
     private int GetRotationAngle(int x, int y)
     {
@@ -266,4 +286,16 @@ public class OnTileClickLevel2 : MonoBehaviour {
     {
         return GetRotationAngle(x, y) == angleSolution;
     }
+
+    //// Unity does not have Tuples, so here's an implementation for me to use.
+    //private class Tuple<T1, T2>
+    //{
+    //    public T1 Item1 { get; private set; }
+    //    public T2 Item2 { get; private set; }
+    //    internal Tuple(T1 item1, T2 item2)
+    //    {
+    //        Item1 = item1;
+    //        Item2 = item2;
+    //    }
+    //}
 }

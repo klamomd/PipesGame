@@ -34,9 +34,11 @@ namespace PipeTapLevelGenerator
             {
                 coloredTiles = new char[xSize, ySize];
 
-                for (int x = xMin; x <= xMax; x++)
+                for (int x = 0; x < xSize; x++)
+                //for (int x = xMin; x <= xMax; x++)
                 {
-                    for (int y = yMin; y <= yMax; y++)
+                    for (int y = 0; y < ySize; y++)
+                    //for (int y = yMin; y <= yMax; y++)
                     {
                         if (x == startX && y == startY) coloredTiles[x, y] = 'S';
                         else if (x == endX && y == endY) coloredTiles[x, y] = 'E';
@@ -54,16 +56,6 @@ namespace PipeTapLevelGenerator
 
                 }
             }
-
-
-            //LEFTOFF: WORKS! Now just need to write a conversion method to replace each X with its appropriate pipe.
-            // Spaces with 2 adjacent tiles (INCLUDING START AND END TILES) can be:
-            // = Straight pipe (2 adjacent on opposite sides)
-            // = Bend pipe (2 adjacent on touching sides)
-            // Spaces with 3 adjacent tiles are T-pipes.
-            // Spaces with 4 adjacent tiles are cross-pipes.
-            // NOTE: No need to rotate them to their correct positions, since they'll just be shuffled anyways.
-            
 
 
             PrintToConsole(coloredTiles);
@@ -103,14 +95,16 @@ namespace PipeTapLevelGenerator
 
         public static bool IsTileValid(int x, int y)
         {
-            if (x < xMin || x > xMax || y < yMin || y > yMax) return false;
+            if (x < 0 || x >= xSize || y < 0 || y >= ySize) return false;
+            //if (x < xMin || x > xMax || y < yMin || y > yMax) return false;
             if (IsBorderTile(x, y)) return false;
             else return coloredTiles[x, y] == ' ';
         }
 
         public static bool IsBorderTile(int x, int y)
         {
-            return x == xMin || x == xMax || y == yMin || y == yMax;
+            return x == 0 || x == xSize - 1 || y == 0 || y == ySize - 1;
+            //return x == xMin || x == xMax || y == yMin || y == yMax;
         }
 
         public static Direction GetRandomDirection()
@@ -142,7 +136,8 @@ namespace PipeTapLevelGenerator
                     return Direction.Right;
                 case Direction.Right:
                     return Direction.Left;
-                default: throw new Exception();
+                default:
+                    throw new Exception();
             }
         }
 
@@ -255,6 +250,13 @@ namespace PipeTapLevelGenerator
 
         //TODO: ROTATE ALL TILES RANDOMLY
 
+        //public static TileType[,] GenerateTileTypesFromTileSet(char[,] tileSet)
+        //{
+        //    TileType[,] tileTypeSet = new TileType[tileSet.GetLength(0), tileSet.GetLength(1)];
+
+
+
+        //}
 
         public static bool AreSidesOpposite(Direction side1, Direction side2)
         {
@@ -288,29 +290,20 @@ namespace PipeTapLevelGenerator
             threeWay,
             fourWay,
             dirt
+                //TODO: Make use of TileType enum in game code. Need to use border, start, and end tile types
         }
 
-        public class Cell
+        public class Tile
         {
-            public Cell(int x, int y, bool isBorder)
+            public Tile(TileType type, int rotation)
             {
-                X = x;
-                Y = y;
-                IsFilled = false;
-                IsBorder = isBorder;
+                if (rotation < 0 || rotation >= 360) throw new ArgumentOutOfRangeException("rotation");
+                PipeType = type;
+                Rotation = rotation;
             }
 
-            public int X { get; }
-            public int Y { get; }
-            public bool IsFilled { get; private set; }
-            public bool IsBorder { get; }
-
-            public bool SetFilled (bool filled)
-            {
-                if (IsBorder) return false;
-                IsFilled = filled;
-                return true;
-            }
+            public int Rotation { get; }
+            public TileType PipeType { get; }
         }
     }
 }
