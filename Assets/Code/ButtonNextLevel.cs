@@ -33,7 +33,7 @@ public class ButtonNextLevel : MonoBehaviour
         var options = new ShowOptions { resultCallback = AfterAdLoadMainMenu };
         PlaySnap();
         if (Advertisement.IsReady()) Advertisement.Show(options);
-        //SceneManager.LoadScene(0);
+        else SceneManager.LoadScene(0);
 
     }
 
