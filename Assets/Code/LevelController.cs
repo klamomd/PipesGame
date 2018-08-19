@@ -15,7 +15,8 @@ public class LevelController : MonoBehaviour {
     public Text levelFinishedText1,
                 levelFinishedText2,
                 levelFinishedText3;
-    public GameObject continueButton;
+    public GameObject nextLevelButton,
+                      mainMenuButton;
 
     private PipeFaceCalculator calculator;
 
@@ -44,39 +45,18 @@ public class LevelController : MonoBehaviour {
         colorOfObject3.a = 0;
         levelFinishedText3.color = colorOfObject3;
 
-        continueButton.SetActive(false);
-
+        nextLevelButton.SetActive(false);
+        mainMenuButton.SetActive(false);
 
         calculator = new PipeFaceCalculator(map);
 
-        //LevelGenerator levelGenerator = new LevelGenerator();
-
-        //Tuple<int, int> startCoords = ConvertCoordinates(startPipeX, startPipeY, -9, -5, false);
-        //Tuple<int, int> endCoords = ConvertCoordinates(endPipeX, endPipeY, -9, -5, false);
-
-        //Tuple<TileType, int>[,] newLevel = levelGenerator.GenerateNewLevel(19, 11, startCoords.Item1, startCoords.Item2, endCoords.Item1, endCoords.Item2);
-        //Tuple<TileType, int>[,] newLevel = levelGenerator.GenerateNewLevel(19, 11, ConvertCoordinates(startPipeX, startPipeY, -9, -5, false), ConvertCoordinates(endPipeX, endPipeY, -9, -5, false));
-
-        //TODO: LEAVING OFF: NEED TO TEST AND CORRECT PAINTING!
-
         RepopulateTileMap();
-        map.RefreshAllTiles();
-
-        //for (int x = 0; x < newLevel.GetLength(0); x++)
-        //{
-        //    for (int y = 0; y < newLevel.GetLength(1); y++)
-        //    {
-        //        Tuple<int, int> convertedCoords = ConvertCoordinates(x, y, -9, -5, true);
-        //        bool highlight = levelGenerator.IsBorderTile(x, y);
-        //        calculator.PaintTile(convertedCoords.Item1, convertedCoords.Item2, newLevel[x, y].Item1, newLevel[x, y].Item2, highlight);
-        //    }
-        //}
     }
 	
 	// Update is called once per frame
 	void Update () {
 
-        // If fading text in, increase the opacity of the "Level Finished" text and make the Continue button visible.
+        // If fading text in, increase the opacity of the "Level Finished" text and make the Next Level and Main Menu buttons visible.
         if (fadingText)
         {
             float prop = (Time.time / period);
@@ -93,7 +73,8 @@ public class LevelController : MonoBehaviour {
             colorOfObject3.a = Mathf.Lerp(0, 1, prop);
             levelFinishedText3.color = colorOfObject3;
 
-            continueButton.SetActive(true);
+            nextLevelButton.SetActive(true);
+            mainMenuButton.SetActive(true);
 
         }
 
@@ -111,17 +92,18 @@ public class LevelController : MonoBehaviour {
             rotate = true;
         }
 
-        if (__IS_DEBUG && Input.GetKeyDown(KeyCode.A))
-        {
-            RepopulateTileMap();
-            snapSound2.Play();
-        }
+        // Debug code for regenerating a level.
+        //if (__IS_DEBUG && Input.GetKeyDown(KeyCode.A))
+        //{
+        //    RepopulateTileMap();
+        //    snapSound2.Play();
+        //}
 
         // Only rotate if the level is not over and the user has left- or right-clicked.
         if (!levelOver && rotate)
         {
             Vector3 mouseVec3 = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Debug.Log(string.Format("Co-ords of mouse is [X: {0} Y: {1} Z:{2}]", mouseVec3.x, mouseVec3.y, mouseVec3.z));
+            //Debug.Log(string.Format("Co-ords of mouse is [X: {0} Y: {1} Z:{2}]", mouseVec3.x, mouseVec3.y, mouseVec3.z));
 
             // Use mouse coordinates to determine which tile the user clicked on.
             int adjustedX = (int)mouseVec3.x;
@@ -134,7 +116,7 @@ public class LevelController : MonoBehaviour {
             // Only continue with rotating the tile if it is not a border tile (or beyond). A tile is on the border when |tile.x| == 9 and/or |tile.y| == 5.
             if (adjustedX > -9 && adjustedX < 9 && adjustedY < 5 && adjustedY > -5)
             {
-                Debug.Log(string.Format("Adjusted co-ords of mouse is [X: {0} Y: {1} Z: {2}]", adjustedX, adjustedY, adjustedZ));
+                //Debug.Log(string.Format("Adjusted co-ords of mouse is [X: {0} Y: {1} Z: {2}]", adjustedX, adjustedY, adjustedZ));
 
                 Vector3Int tileMousePos = new Vector3Int(adjustedX, adjustedY, 0);
 
@@ -149,15 +131,13 @@ public class LevelController : MonoBehaviour {
                 if (clockwise) rotationAngle -= 90;
                 else rotationAngle += 90;
 
-                Debug.Log(string.Format("Rotation Angle: {0}", rotationAngle));
+                //Debug.Log(string.Format("Rotation Angle: {0}", rotationAngle));
 
                 // Rotate the tile and refresh it.
                 map.SetTransformMatrix(tileMousePos, Matrix4x4.Rotate(Quaternion.Euler(0, 0, rotationAngle)));
                 map.RefreshTile(tileMousePos);
 
-                // Play the appropriate sound.
-                //if (clockwise) snapSound1.Play();
-                //else snapSound2.Play();
+                // Play the appropriate sound. I vary the sound based off of whether the X xor Y coordinate is odd.
                 if (Mathf.Abs(adjustedX) % 2 == 1 ^ Mathf.Abs(adjustedY) % 2 == 1) snapSound1.Play();
                 else snapSound2.Play();
 
@@ -169,17 +149,7 @@ public class LevelController : MonoBehaviour {
                     fadingText = true;
                     levelOver = true;
                 }
-
-                //// If the pipes are properly connected, play the success sound and set booleans to indicate that the level is over and that the "Level Finished" text must be faded in.
-                //if (CheckForSolution())
-                //{
-                //    successSound.Play();
-                //    fadingText = true;
-                //    levelOver = true;
-                //}
             }
-
-            
         }
     }
 

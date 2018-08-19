@@ -13,4 +13,9 @@ public class ButtonNextLevel : MonoBehaviour
     {
         SceneManager.LoadScene(levelName);
     }
+
+    public void MainMenuButton()
+    {
+        SceneManager.LoadScene(0);
+    }
 }

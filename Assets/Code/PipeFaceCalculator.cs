@@ -61,14 +61,8 @@ namespace PipeTap.Utilities
         // FindSolution is given the currentTile to branch through, and a Direction completedDirection to NOT branch through.
         private bool FindSolution(Tile currentTile, Direction completedDirection)
         {
-            //Debug.Log(string.Format("||ENTERING [X: {0} Y: {1} completedDirection: {2}]", currentTile.X, currentTile.Y, completedDirection));
-
-
             coloredTiles.Add(currentTile);
-            if (__IS_DEBUG)
-            {
-                ColorTile(currentTile, true);
-            }
+            ColorTile(currentTile, true);
 
             // Get all directions, but remove the one we've completed.
             List<Direction> allSides = GetOpenTileFaces(currentTile);
@@ -80,16 +74,14 @@ namespace PipeTap.Utilities
                 // If this check fails, then the side is a leak and we don't branch down it any further.
                 if (!CheckAdjacentFaceValid(currentTile.X, currentTile.Y, d))
                 {
-                    //Debug.Log(string.Format("~~RETURNING FALSE [X: {0} Y: {1} d: {2}]", currentTile.X, currentTile.Y, d));
-                    //return false;
                     foundLeaks = true;
                     continue;
                 }
 
                 // Adjacent tile.
                 Tile adjacentTile = GetAdjacentTile(currentTile, d);
-                // If we pass the leak test, and if this branch is open (and uncolored), continue through it.
 
+                // If we pass the leak test, and if this branch is open (and uncolored), continue through it.
                 bool isTileColored = coloredTiles.Any(t => t.EqualsTile(adjacentTile));
                 if (isTileColored) continue;
 
@@ -98,16 +90,11 @@ namespace PipeTap.Utilities
                     // Return false if we fail to find a solution.
                     if (!FindSolution(adjacentTile, GetOppositeDirection(d)))
                     {
-                        //Debug.Log(string.Format("~~RETURNING FALSE [X: {0} Y: {1} d: {2}]", adjacentTile.X, adjacentTile.Y, GetOppositeDirection(d)));
-                        //return false;
                         foundLeaks = true;
                         continue;
                     }
                 }
             }
-
-            //// Return true if we have the end tile in our coloredTiles list AND if no leaks have been found.
-            //return coloredTiles.Any<Tile>(t => t.EqualsTile(new Tile(endPipeX, endPipeY))) && !foundLeaks;
 
             // Return true if no leaks have been found. If all branches return true, then FindSolution returns true.
             return !foundLeaks;
@@ -320,17 +307,16 @@ namespace PipeTap.Utilities
         // Colors the tile at X, Y. Fill indicates whether the background should be filled or transparent.
         private void ColorTile(int x, int y, bool fill)
         {
-            Vector3Int tileMousePos = new Vector3Int(x, y, 0);
+            Vector3Int tilePos = new Vector3Int(x, y, 0);
 
             // Determine how the tile is already rotated.
-            var transformMatrix = map.GetTransformMatrix(tileMousePos);
+            var transformMatrix = map.GetTransformMatrix(tilePos);
             Quaternion rotation = transformMatrix.rotation;
 
             int rotationAngle = GetRotationAngle(new Tile(x, y));
-            //int rotationAngle = (int)rotation.eulerAngles.z;
 
             TileType tileType;
-            var tileBase = map.GetTile(tileMousePos);
+            var tileBase = map.GetTile(tilePos);
             if (tileBase == null)
             {
                 tileType = TileType.dirt;
@@ -370,78 +356,62 @@ namespace PipeTap.Utilities
                 }
             }
 
-            map.SetTile(tileMousePos, GetRotatedTileBase(tileType, GetRotationAngle(x, y), fill));
-            map.RefreshTile(tileMousePos);
+            map.SetTile(tilePos, GetTileBase(tileType, fill));
+            map.SetTransformMatrix(tilePos, Matrix4x4.Rotate(Quaternion.Euler(0, 0, rotationAngle)));        // TODO: ADDED THIS LINE, DOES IT FUCK THINGS UP?
+            map.RefreshTile(tilePos);
         }
 
         // Fetch a TileBase from an off-screen portion of the grid to use in coloring other tiles.
-        private TileBase GetRotatedTileBase(TileType tileType, int rotation, bool fill)
+        private TileBase GetTileBase(TileType tileType, bool highlight)
+        //private TileBase GetTileBase(TileType tileType, int rotation, bool fill)
         {
             int x, y;
             switch (tileType)
             {
                 case TileType.bend:
                 case TileType.borderBend:
-                    x = -7;
+                    x = -6;
                     y = -11;
                     break;
                 case TileType.closedEnd:
                 case TileType.borderDeadEnd:
-                    x = -13;
-                    y = -13;
+                    x = -9;
+                    y = -12;
                     break;
                 case TileType.dirt:
-                    x = -7;
-                    y = -13;
+                    x = -6;
+                    y = -12;
                     break;
                 case TileType.fourWay:
-                    x = -11;
+                    x = -8;
                     y = -11;
                     break;
                 case TileType.openEnd:
-                    x = -13;
+                    x = -9;
                     y = -11;
                     break;
                 case TileType.straight:
                 case TileType.borderStraight:
-                    x = -9;
+                    x = -7;
                     y = -11;
                     break;
                 case TileType.threeWay:
-                    x = -9;
-                    y = -13;
+                    x = -7;
+                    y = -12;
                     break;
                 case TileType.underGround:
                 case TileType.start:
                 case TileType.end:
-                    x = -11;
-                    y = -13;
+                    x = -8;
+                    y = -12;
                     break;
                 default:
                     Debug.LogError("ERROR: Invalid tile type: " + tileType);
                     throw new System.Exception("Invalid tile type: " + tileType);
             }
 
-            // Transparent tileset is 8 tiles to the right.
-            if (!fill) x += 8;
-
-            // 
-            switch (rotation)
-            {
-                case 90:
-                    y--;
-                    break;
-                case 180:
-                    y--;
-                    x++;
-                    break;
-                case 270:
-                    x++;
-                    break;
-                default:
-                    break;
-
-            }
+            // Non-highlight tileset is 4 spaces to the right.
+            if (!highlight) x += 4;
 
             Vector3Int tilePos = new Vector3Int(x, y, 0);
             return map.GetTile(tilePos);
@@ -450,7 +420,7 @@ namespace PipeTap.Utilities
         public void PaintTile(int x, int y, TileType tileType, int rotation, bool highlight)
         {
             Vector3Int pos = new Vector3Int(x, y, 0);
-            TileBase baseToPaint = GetRotatedTileBase(tileType, rotation, highlight);
+            TileBase baseToPaint = GetTileBase(tileType, highlight);
 
             map.SetTile(pos, baseToPaint);
             map.SetTransformMatrix(pos, Matrix4x4.Rotate(Quaternion.Euler(0, 0, rotation)));
