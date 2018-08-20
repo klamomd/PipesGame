@@ -104,8 +104,8 @@ public class LevelController : MonoBehaviour {
         bool rotate = false;
         bool clockwise = false;
 
-        // If escape/back button is pressed, show the quit UI.
-        if (Input.GetKeyDown(KeyCode.Escape))
+        // If escape/back button is pressed, show the quit UI (if the level is not done).
+        if (Input.GetKeyDown(KeyCode.Escape) && !levelOver)
         {
             if (showingUI)
             {
@@ -132,13 +132,6 @@ public class LevelController : MonoBehaviour {
             rotate = true;
         }
 
-        // Debug code for regenerating a level.
-        //if (__IS_DEBUG && Input.GetKeyDown(KeyCode.A))
-        //{
-        //    RepopulateTileMap();
-        //    snapSound2.Play();
-        //}
-
         // Only rotate if the level is not over and the user has left- or right-clicked.
         if (!levelOver && !showingUI && rotate)
         {
@@ -148,7 +141,6 @@ public class LevelController : MonoBehaviour {
             // Use mouse coordinates to determine which tile the user clicked on.
             int adjustedX = (int)mouseVec3.x;
             int adjustedY = (int)mouseVec3.y;
-            int adjustedZ = (int)mouseVec3.z;
 
             adjustedX = Mathf.FloorToInt(mouseVec3.x);
             adjustedY = Mathf.FloorToInt(mouseVec3.y);

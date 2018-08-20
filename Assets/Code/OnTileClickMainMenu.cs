@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -10,10 +10,13 @@ public class OnTileClickMainMenu : MonoBehaviour {
     public AudioSource snapSound1,
                        snapSound2;
     public Button playButton;
+    public Canvas quitCanvas;
+    private bool showingUI = false;
 
     // Use this for initialization
     void Start () {
         playButton.enabled = true;
+        quitCanvas.enabled = false;
     }
 	
 	// Update is called once per frame
@@ -33,18 +36,32 @@ public class OnTileClickMainMenu : MonoBehaviour {
             rotate = true;
         }
 
+        // If escape/back button is pressed, show the quit UI (if the level is not done).
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (showingUI)
+            {
+                showingUI = false;
+                quitCanvas.enabled = false;
+            }
+            else
+            {
+                showingUI = true;
+                quitCanvas.enabled = true;
+            }
+        }
 
-        if (rotate)
+
+        if (rotate && !showingUI)
         {
             Vector3 mouseVec3 = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             //Debug.Log(string.Format("Co-ords of mouse is [X: {0} Y: {1} Z:{2}]", mouseVec3.x, mouseVec3.y, mouseVec3.z));
-            
-            int adjustedX = (int)mouseVec3.x;
-            int adjustedY = (int)mouseVec3.y;
-            int adjustedZ = (int)mouseVec3.z;
 
-            adjustedX = Mathf.FloorToInt(mouseVec3.x);
-            adjustedY = Mathf.FloorToInt(mouseVec3.y);
+            //int adjustedX = (int)mouseVec3.x;
+            //int adjustedY = (int)mouseVec3.y;
+
+            int adjustedX = Mathf.FloorToInt(mouseVec3.x);
+            int adjustedY = Mathf.FloorToInt(mouseVec3.y);
 
             // Skip border tiles
             if (adjustedX > -9 && adjustedX < 9 && adjustedY < 5 && adjustedY > -5)
@@ -74,5 +91,19 @@ public class OnTileClickMainMenu : MonoBehaviour {
                 else snapSound2.Play();
             }
         }
+    }
+
+    public void CloseQuitUI()
+    {
+        Debug.Log("Reached CloseQuitUI");
+        quitCanvas.enabled = false;
+        showingUI = false;
+        snapSound1.Play();
+    }
+
+    public void Quit()
+    {
+        Debug.Log("Reached Quit");
+        Application.Quit();
     }
 }
