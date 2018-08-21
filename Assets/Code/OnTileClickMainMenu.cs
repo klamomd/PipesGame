@@ -1,6 +1,7 @@
 ﻿ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 
@@ -10,13 +11,18 @@ public class OnTileClickMainMenu : MonoBehaviour {
     public AudioSource snapSound1,
                        snapSound2;
     public Button playButton;
-    public Canvas quitCanvas;
+    public Canvas quitCanvas,
+                  creditsCanvas,
+                  helpCanvas;
+
     private bool showingUI = false;
 
     // Use this for initialization
     void Start () {
         playButton.enabled = true;
         quitCanvas.enabled = false;
+        creditsCanvas.enabled = false;
+        helpCanvas.enabled = false;
     }
 	
 	// Update is called once per frame
@@ -43,6 +49,8 @@ public class OnTileClickMainMenu : MonoBehaviour {
             {
                 showingUI = false;
                 quitCanvas.enabled = false;
+                helpCanvas.enabled = false;
+                creditsCanvas.enabled = false;
             }
             else
             {
@@ -95,15 +103,39 @@ public class OnTileClickMainMenu : MonoBehaviour {
 
     public void CloseQuitUI()
     {
-        Debug.Log("Reached CloseQuitUI");
         quitCanvas.enabled = false;
         showingUI = false;
         snapSound1.Play();
     }
 
+    public void ShowCreditsUI(bool visible)
+    {
+        // Don't allow click when some UI already visible.
+        if (visible && showingUI) return;
+
+        showingUI = visible;
+        creditsCanvas.enabled = visible;
+        if (!visible) snapSound1.Play();
+    }
+
+    public void ShowHelpUI(bool visible)
+    {
+        // Don't allow click when some UI already visible.
+        if (visible && showingUI) return;
+
+        showingUI = visible;
+        helpCanvas.enabled = visible;
+        if (!visible) snapSound1.Play();
+    }
+
+    public void PlayButtonClicked()
+    {
+        if (showingUI) return;
+        SceneManager.LoadScene(1);
+    }
+
     public void Quit()
     {
-        Debug.Log("Reached Quit");
         Application.Quit();
     }
 }
