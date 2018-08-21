@@ -12,11 +12,6 @@ public class LevelController : MonoBehaviour {
     public AudioSource snapSound1,
                        snapSound2,
                        successSound;
-    //public Text levelFinishedText1,
-    //            levelFinishedText2,
-    //            levelFinishedText3;
-    //public GameObject nextLevelButton,
-    //                  mainMenuButton;
     public GameObject levelDoneUI,
                       quitLevelUI,
                       darkenUIPanel;
@@ -34,28 +29,12 @@ public class LevelController : MonoBehaviour {
                 showingUI = false;
 
     const float period = 4.0f;
-    private const bool __IS_DEBUG = true;
+    private const bool __IS_DEBUG = false;
 
     private System.Random random = new System.Random();
 
     // Use this for initialization
     void Start () {
-        //// Make the "Level Finished" text and Continue button invisible.
-        //Color colorOfObject1 = levelFinishedText1.color;
-        //colorOfObject1.a = 0;
-        //levelFinishedText1.color = colorOfObject1;
-
-        //Color colorOfObject2 = levelFinishedText2.color;
-        //colorOfObject2.a = 0;
-        //levelFinishedText2.color = colorOfObject2;
-
-        //Color colorOfObject3 = levelFinishedText3.color;
-        //colorOfObject3.a = 0;
-        //levelFinishedText3.color = colorOfObject3;
-
-        //nextLevelButton.SetActive(false);
-        //mainMenuButton.SetActive(false);
-
         quitLevelUI.SetActive(false);
         levelDoneUI.SetActive(false);
         darkenUIPanel.SetActive(false);
@@ -81,22 +60,6 @@ public class LevelController : MonoBehaviour {
         // If fading text in, increase the opacity of the "Level Finished" text and make the Next Level and Main Menu buttons visible.
         if (fadingText)
         {
-            //float prop = (Time.time / period);
-
-            //Color colorOfObject1 = levelFinishedText1.color;
-            //colorOfObject1.a = Mathf.Lerp(0, 1, prop);
-            //levelFinishedText1.color = colorOfObject1;
-
-            //Color colorOfObject2 = levelFinishedText2.color;
-            //colorOfObject2.a = Mathf.Lerp(0, 1, prop);
-            //levelFinishedText2.color = colorOfObject2;
-
-            //Color colorOfObject3 = levelFinishedText3.color;
-            //colorOfObject3.a = Mathf.Lerp(0, 1, prop);
-            //levelFinishedText3.color = colorOfObject3;
-
-            //nextLevelButton.SetActive(true);
-            //mainMenuButton.SetActive(true);
             levelDoneUI.SetActive(true);
             darkenUIPanel.SetActive(true);
         }
@@ -120,6 +83,11 @@ public class LevelController : MonoBehaviour {
                 quitLevelUI.SetActive(true);
             }
         }
+
+        //if (__IS_DEBUG && Input.GetKeyDown(KeyCode.R))
+        //{
+        //    RepopulateTileMap();
+        //}
 
         // Change rotation direction based off of which button is clicked.
         if (Input.GetMouseButtonDown(0))
@@ -205,33 +173,6 @@ public class LevelController : MonoBehaviour {
         }
     }
 
-    // TODO: Move Side enum and GetOppositeSide elsewhere!
-    private enum Side
-    {
-        Top,
-        Left,
-        Bottom,
-        Right
-
-    }
-
-    private Side GetOppositeSide(Side s)
-    {
-        switch(s)
-        {
-            case Side.Top:
-                return Side.Bottom;
-            case Side.Left:
-                return Side.Right;
-            case Side.Bottom:
-                return Side.Top;
-            case Side.Right:
-                return Side.Left;
-            default:
-                throw new System.Exception();
-        }
-    }
-
     private Tuple<int, int> GetRandomStartPipeCoords()
     {
         int x = -9;
@@ -260,34 +201,12 @@ public class LevelController : MonoBehaviour {
             int newX = x - Mathf.Abs(minX);
             int newY = -(y - Mathf.Abs(minY));
             return new Tuple<int, int>(newX, newY);
-            // 0 -> 5
-            // 1 -> 4
-            // 2 -> 3
-            // 3 -> 2
-            // 4 -> 1
-            // 5 -> 0
-            // 6 -> -1
-            // 7 -> -2
-            // 8 -> -3
-            // 9 -> -4
-            // 10 -> -5
         }
         else
         {
             int newX = x + Mathf.Abs(minX);
             int newY = -(y - Mathf.Abs(minY));
             return new Tuple<int, int>(newX, newY);
-            //  5 -> 0 
-            //  4 -> 1
-            //  3 -> 2
-            //  2 -> 3
-            //  1 -> 4
-            //  0 -> 5
-            // -1 -> 6
-            // -2 -> 7
-            // -3 -> 8
-            // -4 -> 9
-            // -5 -> 10
         }
     }
 

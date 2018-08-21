@@ -7,7 +7,7 @@ using PipeTap.Utilities;
 
 namespace PipeTap.Utilities
 {
-    public class LevelGenerator : MonoBehaviour
+    public class LevelGenerator
     {
         private System.Random r = new System.Random();
         private char[,] coloredTiles;
@@ -18,7 +18,6 @@ namespace PipeTap.Utilities
 
         // Returns a 2d array of Tuples containing a TileType and a rotation (0 <= rotation < 360).
         public Tuple<TileType, int>[,] GenerateNewLevel(int xSize, int ySize, int startX, int startY, int endX, int endY)
-        //public Tuple<TileType, int>[,] GenerateNewLevel(int xSize, int ySize, Tuple<int, int> startCoords, Tuple<int, int> endCoords)
         {
             this.xSize = xSize;
             this.ySize = ySize;
@@ -26,10 +25,6 @@ namespace PipeTap.Utilities
             this.startY = startY;
             this.endX = endX;
             this.endY = endY;
-            //startX = startCoords.Item1;
-            //startY = startCoords.Item2;
-            //endX = endCoords.Item1;
-            //endY = endCoords.Item2;
 
             char[,] basicCharSet = GenerateCharSet();
             char[,] charSet = ConvertTileSet(basicCharSet);
@@ -82,7 +77,7 @@ namespace PipeTap.Utilities
                         else if (x == endX && y == endY + 1)
                         {
                             // If this is a corner, needs to be rotated sideways.
-                            if (x == xSize - 1 && y == 0) rotation = 0;
+                            if (x == xSize - 1 && y == ySize - 1) rotation = 0;
                             else rotation = 90;
 
                             newLevelTiles[x, y] = new Tuple<TileType, int>(TileType.borderDeadEnd, rotation);

@@ -1,7 +1,11 @@
 STILL TO DO:
+
+FIXED BUG! BUG BUG BUG - IF END TILE IS AT VERY BOTTOM, BORDER EDGE TILE IS NOT PROPERLY ROTATED
+
+
 - Change openDeadEnd pipes to invalid?
 - Add level generator dead-end branches?
-- DISABLE DEBUG BOOLS
+DONE - DISABLE DEBUG BOOLS
 DONE - HELP BUTTON
 DONE - CREDITS BUTTON
 DONE - CREDIT FOR MUSIC/SOUNDS
@@ -11,7 +15,7 @@ DONE - CREDIT FOR MUSIC/SOUNDS
 
 - Create remaining scenes
 - Set New Level buttons to cycle between scenes properly!
-- Change organizationID?
+DONE - Change organizationID?
 - Keystore/other player settings?
 - TEST ON BOTH DEVICES
 

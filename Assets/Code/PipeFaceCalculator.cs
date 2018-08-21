@@ -7,16 +7,14 @@ using UnityEngine.Tilemaps;
 
 namespace PipeTap.Utilities
 {
-    public class PipeFaceCalculator : MonoBehaviour
+    public class PipeFaceCalculator
     {
         private const bool __IS_DEBUG = true;
 
         private Tilemap map;
         public int borderXAbs = 9,
                    borderYAbs = 5;
-        private int startPipeX,
-                    startPipeY,
-                    endPipeX,
+        private int endPipeX,
                     endPipeY;
         private List<Tile> coloredTiles = new List<Tile>();
         private bool foundLeaks = false;
@@ -35,8 +33,6 @@ namespace PipeTap.Utilities
             if (mapToCheck == null) throw new System.Exception("Null Tilemap");
             map = mapToCheck;
             foundLeaks = false;
-            startPipeX = startX;
-            startPipeY = startY;
             endPipeX = endX;
             endPipeY = endY;
 
@@ -55,7 +51,7 @@ namespace PipeTap.Utilities
 
             // Step 2:
             // Start with the start tile. Return true if FindSolution returns true, and if the End Pipe exists in the coloredTiles list.
-            return FindSolution(new Tile(startX, startY), Direction.Left) && coloredTiles.Any<Tile>(t => t.EqualsTile(new Tile(endPipeX, endPipeY)));
+            return FindSolution(new Tile(startX, startY), Direction.Left) && coloredTiles.Any<Tile>(t => t.EqualsTile(new Tile(endX, endY)));
         }
 
         // FindSolution is given the currentTile to branch through, and a Direction completedDirection to NOT branch through.

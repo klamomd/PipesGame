@@ -12,7 +12,8 @@ public class ButtonNextLevel : MonoBehaviour
     {
         //SceneManager.LoadScene(index);
         PlaySnap();
-        if (index % 3 == 0)
+        // Only play ads every 4 scenes
+        if (index % 4 == 0)
         {
             var options = new ShowOptions { resultCallback = AfterAdLoadScene };
             nextScene = index;
