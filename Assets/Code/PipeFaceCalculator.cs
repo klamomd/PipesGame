@@ -23,9 +23,10 @@ namespace PipeTap.Utilities
         {
 
         }
-        public PipeFaceCalculator(Tilemap map)
+        public PipeFaceCalculator(Tilemap _map)
         {
-            this.map = map;
+            // Setting the map just to avoid the compiler complaining about a possibly unset variable.
+            map = _map;
         }
 
         public bool CheckIfSolutionFound(Tilemap mapToCheck, int startX, int startY, int endX, int endY)
